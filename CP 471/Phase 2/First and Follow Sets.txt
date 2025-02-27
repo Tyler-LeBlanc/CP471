@@ -1,0 +1,143 @@
+FIRST(program) = {def}
+
+FIRST(fdecls) = {def}
+FIRST(fdecls') = {;, ε}
+
+FIRST(fdec) = {def}
+
+FIRST(params) = {int, double}
+FIRST(params') = {,, ε}
+
+FIRST(fname) = {a-z, A-Z}
+
+FIRST(declarations) = {int, double}
+FIRST(declarations') = {;, ε}
+
+FIRST(decl) = {int, double}
+
+FIRST(type) = {int, double}
+
+FIRST(varlist) = {a-z, A-Z}
+FIRST(varlist') = {,, ε}
+
+FIRST(statement_seq) = {a-z, A-Z, if, while, print, return, ε}
+FIRST(statement_seq') = {;, ε}
+
+FIRST(statement) = {a-z, A-Z, if, while, print, return, ε}
+FIRST(else_part) = {else, ε}
+
+FIRST(expr) = {a-z, A-Z, 0-9, (}
+FIRST(expr') = {+, -, ε}
+
+FIRST(term) = {a-z, A-Z, 0-9, (}
+FIRST(term') = {*, /, %, ε}
+
+FIRST(factor) = {a-z, A-Z, 0-9, (}
+
+FIRST(exprseq) = {a-z, A-Z, 0-9, (} 
+FIRST(exprseq') = {,, ε}
+
+FIRST(bexpr) = {(, not}
+FIRST(bexpr') = {or, ε}
+
+
+FIRST(bterm) = {(, not}
+FIRST(bterm') = {and, ε}
+
+FIRST(bfactor) = {(, not}
+
+FIRST(var) = {a-z, A-Z}
+FIRST(var') = {[, ε}
+
+FIRST(id) = {a-z, A-Z}
+FIRST(id') = {a-z, A-Z, 0-9, ε}
+
+FIRST(number) = {0-9}
+
+FIRST(integer) = {0-9}
+
+FIRST(double) = {0-9}
+
+FIRST(exponent) = {e, E, ε}
+
+FIRST(sign) = {+, -, ε}
+
+FIRST(letter) = {a-z, A-Z}
+
+FIRST(digit) = {0-9}
+FIRST(digits') = {0-9, ε}
+
+FIRST(comp) = {<, >, ==, <=, >=, <>}
+
+
+
+
+FOLLOW(program) = {$}
+
+FOLLOW(fdecls) = {int, double}
+FOLLOW(fdecls') = {int, double}
+
+FOLLOW(fdec) = {;, int, double}
+
+FOLLOW(params) = {)}
+FOLLOW(params') = {)}
+
+FOLLOW(fname) = {(}
+
+FOLLOW(declarations) = {$, a-z, A-Z, if, while, print, return, ;, int, double}
+FOLLOW(declarations') = {$, a-z, A-Z, if, while, print, return, ;, int, double}
+
+FOLLOW(decl) = {$, ;, a-z, A-Z, if, while, print, return, int, double}
+
+FOLLOW(type) = {a-z, A-Z}
+
+FOLLOW(varlist) = {}
+FOLLOW(varlist') = {}
+
+FOLLOW(statement_seq) = {$, fed, else, od, fi, ;}
+FOLLOW(statement_seq') = {$, fed, else, od, fi, ;}
+
+FOLLOW(statement) = {$, ;, fed, else, od, fi}
+FOLLOW(else_part) = {fi}
+
+FOLLOW(expr) = {), ,, <, >, ==, <=, >=, <>, ), ]}
+FOLLOW(expr') = {), ,, <, >, ==, <=, >=, <>, ), ]}
+
+FOLLOW(term) = {+, -, ), ,, <, >, ==, <=, >=, <>, ), ]}
+FOLLOW(term') = {+, -, ), ,, <, >, ==, <=, >=, <>, ), ]}
+
+FOLLOW(factor) = {*, /, %, +, -, ), ,, <, >, ==, <=, >=, <>, ), ]}
+
+FOLLOW(exprseq) = {)}
+FOLLOW(exprseq') = {)}
+
+FOLLOW(bexpr) = {then, do, )}
+FOLLOW(bexpr') = {then, do, )}
+
+FOLLOW(bterm) = {or, then, do, )}
+FOLLOW(bterm') = {or, then, do, )}
+
+FOLLOW(bfactor) = {and, or, then, do, )}
+
+FOLLOW(comp) = {a-z, A-Z, 0-9, (}
+
+FOLLOW(var) = {,, =, )}
+FOLLOW(var') = {,, =, )}
+
+FOLLOW(letter) = {a-z, A-Z, 0-9, [, ,, =, )}
+
+FOLLOW(digit) = {a-z, A-Z, 0-9, [, ,, =, ), e, E, .}
+FOLLOW(digits') = {e, E, .}
+
+FOLLOW(id) = {[, ,, =, )}
+FOLLOW(id') = {[, ,, =, )}
+
+FOLLOW(number) = {}
+
+FOLLOW(integer) = {}
+
+FOLLOW(double) = {}
+
+FOLLOW(sign) = {0-9}
+
+FOLLOW(exponent) = {}
