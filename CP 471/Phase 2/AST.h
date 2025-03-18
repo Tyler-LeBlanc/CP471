@@ -12,18 +12,18 @@ typedef struct
 
 typedef struct
 {
-    char array[100];
-    int top;
+    char array[100];    //array to hold elements of the stack
+    int top;    //index of the top element
 }STACK;
 
 
 // functions for the Stack
-void initializeStack;
-int isEmpty;
-int isFull;
-void push;
-char pop;
-char peek;
+void initializeStack(STACK *stack);
+int isEmpty(STACK *stack);
+int isFull(STACK *stack);
+void push(STACK *stack, char value);
+char pop(STACK *stack);
+char peek(STACK *stack);
 
 
 // functions for the AST

@@ -3,6 +3,15 @@
 #include "LexicalAnalysis.h"
 #include "AST.h"
 
+
+
+
+/*
+*
+*                                   Phase 1 Code
+*
+*/
+
 #define BUFFERSIZE 1024
 #define INITIAL_CAPACITY 100
 
@@ -383,7 +392,7 @@ void printTokens(TOKEN_ARRAY *tokenArray) {
 
 
 /*
-/ Phase 1 Function
+/ Phase 1 main Function
 / Runs the lexical analyzer
 /
 */
@@ -473,11 +482,69 @@ int LexicalAnalysis(){
 }
 
 
+/*
+*                                       Phase 2 Code
+*
+*
+*/
+
+#define STACK_MAX 100
+
+
+// Function to Initialize the stack
+void initializeStack(STACK *stack){
+    stack->top = -1;
+}
+
+
+// Function to check if the stack is empty (0 is False)
+int isEmpty(STACK *stack){
+    return stack->top == -1;
+}
+
+// Function to check if the stack is full
+int isFull(STACK *stack){
+    return stack->top == STACK_MAX - 1;
+}
+
+
+// Function to add value onto the stack
+void push(STACK *stack, char value){
+    if (isFull(&stack)){
+        printf("Stack is full.");
+    }else{
+        stack->array[++stack->top] = value;
+    }
+}
+
+
+// Function to remove value from the stack
+char pop(STACK *stack){
+    char popped = NULL;
+    if (!isEmpty(&stack)){
+        popped = stack->array[stack->top--];
+    }
+
+    return popped;
+}
+
+// Function to check what the top value of the stack is
+char peek(STACK *stack){
+    char peeked = NULL;
+    if(!isEmpty(stack)){
+        peeked = stack->array[stack->top];
+    }
+
+    return peeked;
+}
+
+
+
 
 
 
 /*
-*   Phase 2 function
+*   Phase 2 main function
 *   Runs the syntax analyzer
 */
 int SyntaxAnalysis(){
