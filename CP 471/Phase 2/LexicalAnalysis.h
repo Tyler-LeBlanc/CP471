@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #ifndef LEXICALANALYSIS_H_
 #define LEXICALANALYSIS_H_
 
