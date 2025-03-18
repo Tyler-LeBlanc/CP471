@@ -383,12 +383,12 @@ void printTokens(TOKEN_ARRAY *tokenArray) {
 
 
 /*
-/ Main function to read file and store tokens.
-/ Also handles any invalid characters and tokens
+/ Phase 1 Function
+/ Runs the lexical analyzer
 /
 */
 
-int main(){
+int LexicalAnalysis(){
     char c;
     int cline = 1;
     int state = 0;
@@ -470,4 +470,17 @@ int main(){
     freeTK(tk);
     return 1;
     
+}
+
+
+
+
+/*
+*   Main Function
+*/
+int main(){
+    
+    LexicalAnalysis();
+
+    return 0;
 }
