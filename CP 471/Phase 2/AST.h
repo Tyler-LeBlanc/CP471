@@ -4,10 +4,33 @@
 typedef struct
 {
     char *value;
-    struct AST_NODE *left;
-    struct AST_NODE *right;
+    struct NODE *left;
+    struct NODE *right;
 
-}AST_NODE;
+}NODE;
+
+
+typedef struct
+{
+    char array[100];
+    int top;
+}STACK;
+
+
+// functions for the Stack
+void initializeStack;
+int isEmpty;
+int isFull;
+void push;
+char pop;
+char peek;
+
+
+// functions for the AST
+NODE* createNode;
+void insert;
+
+
 
 
 
