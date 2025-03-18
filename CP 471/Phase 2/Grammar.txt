@@ -5,7 +5,7 @@
 
 <fdec> ::= def <type> <fname> (<params>) <declarations> <statement_seq> fed
 
-<params> ::= <type> <var> <params'>
+`<params> ::= <type> <var> <params'>
 <params'> ::= , <type> <var> <params'> | ε
 
 <fname> ::= <id>
