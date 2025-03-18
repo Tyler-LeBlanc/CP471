@@ -475,6 +475,22 @@ int LexicalAnalysis(){
 
 
 
+
+/*
+*   Phase 2 function
+*   Runs the syntax analyzer
+*/
+int SyntaxAnalysis(){
+    
+}
+
+
+
+
+
+
+
+
 /*
 *   Main Function
 */
