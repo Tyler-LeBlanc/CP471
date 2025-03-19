@@ -1,9 +1,9 @@
 #ifndef AST_H_
 #define AST_H_
 
-typedef struct
+typedef struct NODE
 {
-    char *value;
+    char value;
     struct NODE *left;
     struct NODE *right;
 
@@ -24,7 +24,7 @@ char pop(STACK *stack);
 char peek(STACK *stack);
 
 // functions for the AST
-NODE *createNode;
-// void insert;
+NODE *createNode(char value);
+void insert(NODE **root, char value);
 
 #endif

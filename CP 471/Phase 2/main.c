@@ -521,9 +521,10 @@ int isFull(STACK *stack)
 }
 
 // Function to add value onto the stack
+//use: push(stack, value)
 void push(STACK *stack, char value)
 {
-    if (isFull(&stack))
+    if (isFull(stack))
     {
         printf("Stack is full.");
     }
@@ -536,8 +537,8 @@ void push(STACK *stack, char value)
 // Function to remove value from the stack
 char pop(STACK *stack)
 {
-    char popped = NULL;
-    if (!isEmpty(&stack))
+    char popped;
+    if (!isEmpty(stack))
     {
         popped = stack->array[stack->top--];
     }
@@ -548,7 +549,7 @@ char pop(STACK *stack)
 // Function to check what the top value of the stack is
 char peek(STACK *stack)
 {
-    char peeked = NULL;
+    char peeked;
     if (!isEmpty(stack))
     {
         peeked = stack->array[stack->top];
@@ -556,6 +557,71 @@ char peek(STACK *stack)
 
     return peeked;
 }
+
+
+// Function to create AST node
+NODE *createNode(char data){
+    //make memory for new node
+    NODE *new_node = (NODE*) malloc(sizeof(NODE));
+
+    //initialize values
+    new_node->value = data;
+    new_node->left = NULL;
+    new_node->right = NULL;
+
+    //return new node
+    return new_node;
+}
+
+
+//Function to insert new node into tree
+// use: insert(&root, char)
+void insert(NODE **root, char data){
+    //create a new node
+    NODE *new_node = createNode(data);
+
+    //check if tree is empty
+    if(*root == NULL){
+        *root = new_node;
+    }else{
+        //do level order traversal to find where to insert node
+
+        NODE *temp;
+        NODE *queue[100];
+        int front = -1;
+        int rear = -1;
+        queue[++rear] = *root;
+
+        while(front != rear){
+            //get current node
+            temp = queue[++front];
+
+            //check if left is empty, if so add node
+            if (temp->left == NULL){
+                temp->left = new_node;
+                return;
+            }else{
+                //if left is not empty, add to rear
+                queue[++rear] = temp->left;
+            }
+
+            //check if right is empty, if so add node
+            if(temp->right == NULL){
+                temp->right = new_node;
+                return;
+            }else{
+                //if right is not empty, add to rear
+                queue[++rear] = temp->right;
+            }
+
+        }
+    }
+
+}
+
+
+
+
 
 /*
  *   Phase 2 main function
@@ -568,10 +634,6 @@ int SyntaxAnalysis()
 /*
  *   Main Function
  */
-int main()
-{
+int main(){
 
-    LexicalAnalysis();
-
-    return 0;
 }
