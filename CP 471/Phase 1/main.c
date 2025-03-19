@@ -383,14 +383,11 @@ int isKeyword(const char *token)
 // Function to print out all tokens stored
 void printTokens(TOKEN_ARRAY *tokenArray)
 {
-    FILE *tokenFile = fopen("./tokens.txt", "w");
     printf("Tokens Found:\n");
     for (int i = 0; i < tokenArray->size; i++)
     {
-        // printf("Lexeme:%s, Type: %s\n", tokenArray->array[i].lexeme, tokenArray->array[i].type);
-        fprintf(tokenFile, "Lexeme:%s, Type: %s\n", tokenArray->array[i].lexeme, tokenArray->array[i].type);
+        printf("Lexeme:%s, Type: %s\n", tokenArray->array[i].lexeme, tokenArray->array[i].type);
     }
-    fclose(tokenFile);
 }
 
 /*
@@ -434,12 +431,9 @@ int main()
         // Handle invalid characters
         if (state == -1)
         {
-            FILE *errorFile = fopen("./tokenErrors.txt", "w");
             printf("Invalid character:%c, on line %d\n", c, cline);
-            fprintf(errorFile, "Invalid character:%c, on line %d\n", c, cline);
             previous_state = state;
             state = 0;
-            fclose(errorFile);
 
             // Handle end of token
         }
