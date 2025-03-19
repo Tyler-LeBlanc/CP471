@@ -146,6 +146,7 @@ follow_sets = {
 
 }
 
+from tabulate import tabulate
 
 # Terminals (Gather from First and Follow sets)
 terminals = set()
@@ -184,13 +185,37 @@ for non_terminal, rules in productions.items():
             for terminal in follow_sets[non_terminal]:
                 ll1_table[non_terminal][terminal] = rule
 
-# Display the LL(1) Parsing Table
+# Generate C-compatible array of structs
+c_code = """#include <search.h>
+#include <stdio.h>
 
-headers = ["Non-Terminal"] + list(terminals)
-rows = [[nt] + [ll1_table[nt][t] if ll1_table[nt][t] else "-" for t in terminals] for nt in ll1_table]
-print(tabulate(rows, headers, tablefmt="grid"))
+#define MAX_RULES %d
 
-#headers = ["Non-Terminal"] + list(terminals)
-with open("ll(1).txt", "w", encoding="utf-8") as file:
-    fileString = tabulate(rows, headers, tablefmt="grid")
-    file.write(fileString)
+typedef struct {
+    char *non_terminal;
+    char *terminal;
+    char *production;
+} ParsingRule;
+
+ParsingRule parsing_table[MAX_RULES] = {
+""" % (sum(1 for nt in ll1_table for t in ll1_table[nt] if ll1_table[nt][t]))
+
+for non_terminal, terminals_map in ll1_table.items():
+    for terminal, production in terminals_map.items():
+        if production:  # Only add entries with actual rules
+            c_code += f'    {{"{non_terminal}", "{terminal}", "{production}"}},\n'
+
+c_code += """};
+
+int main() {
+    printf("LL(1) Parsing Table Loaded. Use hash map lookup to access rules.\\n");
+    return 0;
+}
+"""
+
+# Write the C-compatible table to a file
+with open("ll1_table.c", "w", encoding="utf-8") as file:
+    file.write(c_code)
+
+print("C code for LL(1) table generated in ll1_table.c")
+
