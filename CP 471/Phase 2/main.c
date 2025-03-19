@@ -521,27 +521,29 @@ int isFull(STACK *stack)
 }
 
 // Function to add value onto the stack
-//use: push(stack, value)
+//use: push(&stack, char)
 void push(STACK *stack, char value)
 {
     if (isFull(stack))
     {
         printf("Stack is full.");
+        return;
     }
-    else
-    {
-        stack->array[++stack->top] = value;
-    }
+    
+    stack->array[++stack->top] = value;
 }
 
 // Function to remove value from the stack
+//use: pop(&stack, char)
 char pop(STACK *stack)
 {
-    char popped;
-    if (!isEmpty(stack))
-    {
-        popped = stack->array[stack->top--];
+    if (isEmpty(stack)){
+        printf("Stack is empty.");
+        return -1;
     }
+
+    char popped = stack->array[stack->top];
+    stack->top--;
 
     return popped;
 }
@@ -635,5 +637,13 @@ int SyntaxAnalysis()
  *   Main Function
  */
 int main(){
+    STACK stack;
+    initializeStack(&stack);
+
+    push(&stack, "abc");
+
+    char v1 = pop(&stack);
+
+    printf("%s", v1);
 
 }
