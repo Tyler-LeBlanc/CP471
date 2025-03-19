@@ -7,15 +7,13 @@ typedef struct
     struct NODE *left;
     struct NODE *right;
 
-}NODE;
-
+} NODE;
 
 typedef struct
 {
-    char array[100];    //array to hold elements of the stack
-    int top;    //index of the top element
-}STACK;
-
+    char array[100]; // array to hold elements of the stack
+    int top;         // index of the top element
+} STACK;
 
 // functions for the Stack
 void initializeStack(STACK *stack);
@@ -25,13 +23,8 @@ void push(STACK *stack, char value);
 char pop(STACK *stack);
 char peek(STACK *stack);
 
-
 // functions for the AST
-NODE* createNode;
-void insert;
-
-
-
-
+NODE *createNode;
+// void insert;
 
 #endif
