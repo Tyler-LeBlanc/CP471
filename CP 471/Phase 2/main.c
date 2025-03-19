@@ -580,7 +580,7 @@ ParsingRule parsing_table[MAX_RULES] = {
     {"term_", "then", "ε"},
     {"term_", ";", "ε"},
     {"term_", "else", "ε"},
-    {"term_", '%', "% factor term_"},
+    {"term_", "%", "% factor term_"},
     {"term_", "+", "ε"},
     {"term_", "-", "ε"},
     {"term_", "/", "/ factor term_"},
@@ -631,7 +631,7 @@ ParsingRule parsing_table[MAX_RULES] = {
     {"id_", ";", "ε"},
     {"id_", "else", "ε"},
     {"id_", "if", "ε"},
-    {"id_", '%', "ε"},
+    {"id_", "%", "ε"},
     {"id_", "+", "ε"},
     {"id_", "-", "ε"},
     {"id_", "/", "ε"},
@@ -664,7 +664,7 @@ ParsingRule parsing_table[MAX_RULES] = {
     {"integer_", "and", "ε"},
     {"integer_", "then", "ε"},
     {"integer_", ";", "ε"},
-    {"integer_", '%', "ε"},
+    {"integer_", "%", "ε"},
     {"integer_", "+", "ε"},
     {"integer_", "-", "ε"},
     {"integer_", "/", "ε"},
@@ -828,18 +828,32 @@ void insert(NODE **root, char* data){
  */
 NODE* SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack){
 
-    //initialize stack
-    initializeStack(stack);
-    push(&stack, "program");
+    //push initial symbol onto the stack
+    push(stack, "program");
 
-    //create token index to track which token we are matching
+    //initialize token index
     int token_index = 0;
-    //get the current token item
-    TOKEN current_token = tk->array[token_index];
 
     //create the root of the AST and add starting production
     NODE* root = createNode("Program");
+    NODE* current_ast = root;
 
+    //initilize buffer to seperate rules
+    char* production_buffer[256];
+    
+    //main loop, runs while stack has productions
+    while(!isEmpty(stack)){
+        //get the top of stack(current production)
+        char* current_production = pop(stack);
+        //get the current token object
+        TOKEN current_token = tk->array[token_index];
+
+        //check if top of stack is terminal
+
+
+        //handle top of stack is non-terminal
+
+    }
 
 }
 
@@ -848,10 +862,12 @@ NODE* SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack){
  */
 int main(){
 
-    NODE *root = NULL;
 
-    insert(&root, "abc");
+    TOKEN_ARRAY *tk = LexicalAnalysis("Test1.cp");
 
-    printf("%s", root->value);
+    STACK *stack = NULL;
+    initializeStack(stack);
+
+    NODE *ast_root = SyntaxAnalysis(tk, stack);
 
 }
