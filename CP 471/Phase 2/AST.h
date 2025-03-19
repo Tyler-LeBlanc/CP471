@@ -15,6 +15,13 @@ typedef struct
     int top;         // index of the top element
 } STACK;
 
+typedef struct
+{
+    char *non_terminal;
+    char *terminal;
+    char *production;
+} ParsingRule;
+
 // functions for the Stack
 void initializeStack(STACK *stack);
 int isEmpty(STACK *stack);
