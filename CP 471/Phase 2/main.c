@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "LexicalAnalysis.h"
 #include "AST.h"
 
@@ -405,7 +406,7 @@ void printTokens(TOKEN_ARRAY *tokenArray)
 /
 */
 
-int LexicalAnalysis()
+TOKEN_ARRAY* LexicalAnalysis(char* filename)
 {
     char c;
     int cline = 1;
@@ -413,12 +414,11 @@ int LexicalAnalysis()
     int previous_state = 0;
 
     // Initialize the buffer
-    const char *filename = "Test1.cp";
     DOUBLE_BUFFER *db = initializeBuffer(filename);
     if (!db)
     {
         printf("Error initializing Double Buffer");
-        return 0;
+        return NULL;
     }
 
     // Initialize the token array
@@ -485,13 +485,11 @@ int LexicalAnalysis()
             tempPos = 0; // Reset the buffer after reading a token
         }
     }
-    // Test tokens
-    printTokens(tk);
 
     // Free memory
     freeDB(db);
-    freeTK(tk);
-    return 1;
+
+    return tk;
 }
 
 /*
@@ -522,47 +520,43 @@ int isFull(STACK *stack)
 
 // Function to add value onto the stack
 //use: push(&stack, char)
-void push(STACK *stack, char value)
+void push(STACK *stack, const char *value)
 {
     if (isFull(stack))
     {
-        printf("Stack is full.");
+        printf("Stack is full.\n");
         return;
     }
-    
-    stack->array[++stack->top] = value;
+    // Allocate and copy the string to store on the stack
+    stack->array[++stack->top] = strdup(value);
 }
 
 // Function to remove value from the stack
 //use: pop(&stack, char)
-char pop(STACK *stack)
+char* pop(STACK *stack)
 {
     if (isEmpty(stack)){
         printf("Stack is empty.");
-        return -1;
+        return NULL;
     }
 
-    char popped = stack->array[stack->top];
-    stack->top--;
-
-    return popped;
+    return stack->array[stack->top--];
 }
 
 // Function to check what the top value of the stack is
-char peek(STACK *stack)
+char* peek(STACK *stack)
 {
-    char peeked;
     if (!isEmpty(stack))
     {
-        peeked = stack->array[stack->top];
+        return stack->array[stack->top];
     }
 
-    return peeked;
+    return NULL;
 }
 
 
 // Function to create AST node
-NODE *createNode(char data){
+NODE *createNode(char* data){
     //make memory for new node
     NODE *new_node = (NODE*) malloc(sizeof(NODE));
 
@@ -578,7 +572,7 @@ NODE *createNode(char data){
 
 //Function to insert new node into tree
 // use: insert(&root, char)
-void insert(NODE **root, char data){
+void insert(NODE **root, char* data){
     //create a new node
     NODE *new_node = createNode(data);
 
@@ -629,21 +623,20 @@ void insert(NODE **root, char data){
  *   Phase 2 main function
  *   Runs the syntax analyzer
  */
-int SyntaxAnalysis()
+void SyntaxAnalysis()
 {
+    TOKEN_ARRAY *tk = LexicalAnalysis("Test1.txt");
 }
 
 /*
  *   Main Function
  */
 int main(){
-    STACK stack;
-    initializeStack(&stack);
 
-    push(&stack, "abc");
+    NODE *root = NULL;
 
-    char v1 = pop(&stack);
+    insert(&root, "abc");
 
-    printf("%s", v1);
+    printf("%s", root->value);
 
 }
