@@ -12,7 +12,6 @@
 
 #define BUFFERSIZE 1024
 #define INITIAL_CAPACITY 100
-
 // Mapping of acceptance states to token types
 StateTokenMap tokenMap[] = {
     {1, "IDENTIFIER"},
@@ -406,7 +405,7 @@ void printTokens(TOKEN_ARRAY *tokenArray)
 /
 */
 
-TOKEN_ARRAY* LexicalAnalysis(char* filename)
+TOKEN_ARRAY *LexicalAnalysis(char *filename)
 {
     char c;
     int cline = 1;
@@ -697,12 +696,6 @@ ParsingRule parsing_table[MAX_RULES] = {
     {"sign", "-", "-"},
 };
 
-
-
-
-
-
-
 // Function to Initialize the stack
 void initializeStack(STACK *stack)
 {
@@ -722,7 +715,7 @@ int isFull(STACK *stack)
 }
 
 // Function to add value onto the stack
-//use: push(&stack, char)
+// use: push(&stack, char)
 void push(STACK *stack, const char *value)
 {
     if (isFull(stack))
@@ -735,10 +728,11 @@ void push(STACK *stack, const char *value)
 }
 
 // Function to remove value from the stack
-//use: pop(&stack, char)
-char* pop(STACK *stack)
+// use: pop(&stack, char)
+char *pop(STACK *stack)
 {
-    if (isEmpty(stack)){
+    if (isEmpty(stack))
+    {
         printf("Stack is empty.");
         return NULL;
     }
@@ -747,7 +741,7 @@ char* pop(STACK *stack)
 }
 
 // Function to check what the top value of the stack is
-char* peek(STACK *stack)
+char *peek(STACK *stack)
 {
     if (!isEmpty(stack))
     {
@@ -757,33 +751,36 @@ char* peek(STACK *stack)
     return NULL;
 }
 
-
 // Function to create AST node
-NODE *createNode(char* data){
-    //make memory for new node
-    NODE *new_node = (NODE*) malloc(sizeof(NODE));
+NODE *createNode(char *data)
+{
+    // make memory for new node
+    NODE *new_node = (NODE *)malloc(sizeof(NODE));
 
-    //initialize values
+    // initialize values
     new_node->value = data;
     new_node->left = NULL;
     new_node->right = NULL;
 
-    //return new node
+    // return new node
     return new_node;
 }
 
-
-//Function to insert new node into tree
-// use: insert(&root, char)
-void insert(NODE **root, char* data){
-    //create a new node
+// Function to insert new node into tree
+//  use: insert(&root, char)
+void insert(NODE **root, char *data)
+{
+    // create a new node
     NODE *new_node = createNode(data);
 
-    //check if tree is empty
-    if(*root == NULL){
+    // check if tree is empty
+    if (*root == NULL)
+    {
         *root = new_node;
-    }else{
-        //do level order traversal to find where to insert node
+    }
+    else
+    {
+        // do level order traversal to find where to insert node
 
         NODE *temp;
         NODE *queue[100];
@@ -791,83 +788,105 @@ void insert(NODE **root, char* data){
         int rear = -1;
         queue[++rear] = *root;
 
-        while(front != rear){
-            //get current node
+        while (front != rear)
+        {
+            // get current node
             temp = queue[++front];
 
-            //check if left is empty, if so add node
-            if (temp->left == NULL){
+            // check if left is empty, if so add node
+            if (temp->left == NULL)
+            {
                 temp->left = new_node;
                 return;
-            }else{
-                //if left is not empty, add to rear
+            }
+            else
+            {
+                // if left is not empty, add to rear
                 queue[++rear] = temp->left;
             }
 
-            //check if right is empty, if so add node
-            if(temp->right == NULL){
+            // check if right is empty, if so add node
+            if (temp->right == NULL)
+            {
                 temp->right = new_node;
                 return;
-            }else{
-                //if right is not empty, add to rear
+            }
+            else
+            {
+                // if right is not empty, add to rear
                 queue[++rear] = temp->right;
             }
-
         }
     }
-
 }
-
-
-
-
 
 /*
  *   Phase 2 main function
  *   Runs the syntax analyzer
  */
-NODE* SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack){
+NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
+{
 
-    //push initial symbol onto the stack
+    // push initial symbol onto the stack
     push(stack, "program");
 
-    //initialize token index
+    // initialize token index
     int token_index = 0;
 
-    //create the root of the AST and add starting production
-    NODE* root = createNode("Program");
-    NODE* current_ast = root;
+    // create the root of the AST and add starting production
+    NODE *root = createNode("Program");
+    NODE *current_ast = root;
 
-    //initilize buffer to seperate rules
-    char* production_buffer[256];
-    
-    //main loop, runs while stack has productions
-    while(!isEmpty(stack)){
-        //get the top of stack(current production)
-        char* current_production = pop(stack);
-        //get the current token object
+    // initilize buffer to seperate rules
+    char *production_buffer[256];
+
+    // main loop, runs while stack has productions
+    while (!isEmpty(stack))
+    {
+        // get the top of stack(current production)
+        char *current_production = pop(stack);
+        // get the current token object
         TOKEN current_token = tk->array[token_index];
+        printf("Trying to get parsing rule from LL(1) rules: %d\n", MAX_RULES);
+        for (int i = 0; i < MAX_RULES; i++)
+        { // traverse the whole heap looking for the current production
+            // printf("Production found: %s\n", parsing_table[i].non_terminal);
+            if (strcmp(parsing_table[i].non_terminal, current_production) == 0) // If we've found the current production
+            {
+                printf("Production found: %s, Non-terminal: %s, Terminal: %s\n", parsing_table[i].production, parsing_table[i].non_terminal, parsing_table[i].terminal);
+                char *strProduction = strdup(parsing_table[i].production);
+                char *formattedProduction = strtok(strProduction, " "); // Split collection of non-terminals into individual non terminals and push each of them into the stack
+                // printf("formatted Production: %s", formattedProduction);
+                while (formattedProduction != NULL)
+                {
+                    // In here each production rule is split at the whitespaces, each of these productions needs to be pushed into the stack
+                    push(stack, formattedProduction);
+                    printf("Current non-terminal: %s\n", formattedProduction);
+                    formattedProduction = strtok(NULL, " "); // Split collection of non-terminals into individual non terminals and push each of them into the stack
+                }
+            }
+        }
 
-        //check if top of stack is terminal
-
-
-        //handle top of stack is non-terminal
-
+        // check if top of stack is terminal
+        // Overall Idea: Continue to push non terminal rules into the stack, when you pop off a rule, add the children of that rule to the stack
+        // Continue this expansion until we start to reach non-terminals. Once we hit a non terminal compare it with the current token. If it's a match then we're ready to move to the next token
+        // If not then we continue to expand the production rules and find more non-terminals which hopefully match.
+        // If the stack is empty but we've not fully explored the stack then we have a syntax error.
+        // handle top of stack is non-terminal
     }
-
 }
 
 /*
  *   Main Function
  */
-int main(){
-
+int main()
+{
 
     TOKEN_ARRAY *tk = LexicalAnalysis("Test1.cp");
 
-    STACK *stack = NULL;
+    STACK *stack = malloc(sizeof(STACK));
+    printf("init stack");
     initializeStack(stack);
 
     NODE *ast_root = SyntaxAnalysis(tk, stack);
-
 }
