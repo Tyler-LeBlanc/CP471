@@ -762,32 +762,32 @@ ParsingRule parsing_table[MAX_RULES] = {
     {"factor", "v", "var"},
     {"factor", "n", "number"},
     {"factor", "(", "( expr )"},
-    {"letter", "w", "w"},
-    {"letter", "s", "s"},
-    {"letter", "l", "l"},
-    {"letter", "r", "r"},
-    {"letter", "f", "f"},
-    {"letter", "x", "x"},
-    {"letter", "k", "k"},
-    {"letter", "z", "z"},
-    {"letter", "h", "h"},
-    {"letter", "u", "u"},
-    {"letter", "a", "a"},
-    {"letter", "g", "g"},
-    {"letter", "y", "y"},
-    {"letter", "j", "j"},
-    {"letter", "d", "d"},
-    {"letter", "v", "v"},
-    {"letter", "e", "e"},
-    {"letter", "t", "t"},
-    {"letter", "o", "o"},
-    {"letter", "b", "b"},
-    {"letter", "q", "q"},
-    {"letter", "n", "n"},
-    {"letter", "i", "i"},
-    {"letter", "m", "m"},
-    {"letter", "p", "p"},
-    {"letter", "c", "c"},
+    {"letter", "w", "ε"},
+    {"letter", "s", "ε"},
+    {"letter", "l", "ε"},
+    {"letter", "r", "ε"},
+    {"letter", "f", "ε"},
+    {"letter", "x", "ε"},
+    {"letter", "k", "ε"},
+    {"letter", "z", "ε"},
+    {"letter", "h", "ε"},
+    {"letter", "u", "ε"},
+    {"letter", "a", "ε"},
+    {"letter", "g", "ε"},
+    {"letter", "y", "ε"},
+    {"letter", "j", "ε"},
+    {"letter", "d", "ε"},
+    {"letter", "v", "ε"},
+    {"letter", "e", "ε"},
+    {"letter", "t", "ε"},
+    {"letter", "o", "ε"},
+    {"letter", "b", "ε"},
+    {"letter", "q", "ε"},
+    {"letter", "n", "ε"},
+    {"letter", "i", "ε"},
+    {"letter", "m", "ε"},
+    {"letter", "p", "ε"},
+    {"letter", "c", "ε"},
     {"digit", "1", "ε"},
     {"digit", "5", "ε"},
     {"digit", "9", "ε"},
@@ -927,7 +927,6 @@ int getNextToken(TOKEN current_token, int token_index, TOKEN_ARRAY *tk)
 
 NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
 {
-
     // push initial symbol onto the stack
     push(stack, "program");
 
@@ -948,28 +947,30 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
     //     temp += 1;
     // }
     // main loop, runs while stack has productions
+
     while (!isEmpty(stack) && token_index < tk->size)
     {
+
         // get the top of stack(current production)
         TOKEN current_token = tk->array[token_index];
         // printf("Size of the tokens: %d\n", tk->size);
 
         char *current_production = pop(stack);
         // printf("popped: %s From stack Looking For: %s With Type: %s\n", current_production, current_token.lexeme, current_token.type);
-        if (strcmp(current_production, current_token.lexeme) == 0)
-        {
-            token_index = getNextToken(current_token, token_index, tk);
-        }
+        // if (strcmp(current_production, current_token.lexeme) == 0)
+        // {
+        //     token_index = getNextToken(current_token, token_index, tk);
+        // }
 
         // get the current token object
         // printf("Trying to get parsing rule from LL(1) rules: %d\n", MAX_RULES);
-
         for (int i = 0; i < MAX_RULES; i++)
-        { // traverse the whole heap looking for the current production
+        {
+            // traverse the whole heap looking for the current production
             // printf("Production found: %s\n", parsing_table[i].non_terminal);
             if (strcmp(parsing_table[i].non_terminal, current_production) == 0) // If we've found the current production
             {
-                // printf("Production found: %s, Non-terminal: %s, Terminal: %s\n", parsing_table[i].production, parsing_table[i].non_terminal, parsing_table[i].terminal);
+                // printf(" Non-terminal: %s, Production found: %s, Terminal: %s Current: %s\n", parsing_table[i].non_terminal, parsing_table[i].production, parsing_table[i].terminal, current_production);
                 if (strcmp(parsing_table[i].production, "ε") == 0) // found a terminal
                 {
                     // printf("Terminal: %s\n", parsing_table[i].terminal);
@@ -995,6 +996,7 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                         else
                         {
                             // printf("Syntax Error\n");
+
                             //   Syntax error
                         }
                     }

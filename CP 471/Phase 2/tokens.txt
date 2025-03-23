@@ -54,3 +54,10 @@ Lexeme:(, Type: DELIMITER
 Lexeme:x, Type: IDENTIFIER
 Lexeme:), Type: DELIMITER
 Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:int, Type: KEYWORD
+Lexeme:., Type: DELIMITER
+Lexeme: , Type: DELIMITER
