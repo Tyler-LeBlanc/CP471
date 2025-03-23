@@ -696,6 +696,17 @@ ParsingRule parsing_table[MAX_RULES] = {
     {"sign", "-", "-"},
 };
 
+void reverse(char *str)
+{
+    int len = strlen(str);
+    for (int i = 0; i < len / 2; i++)
+    {
+        char temp = str[i];
+        str[i] = str[len - i - 1];
+        str[len - i - 1] = temp;
+    }
+}
+
 // Function to Initialize the stack
 void initializeStack(STACK *stack)
 {
@@ -847,7 +858,7 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
         char *current_production = pop(stack);
         // get the current token object
         TOKEN current_token = tk->array[token_index];
-        printf("Trying to get parsing rule from LL(1) rules: %d\n", MAX_RULES);
+        // printf("Trying to get parsing rule from LL(1) rules: %d\n", MAX_RULES);
         for (int i = 0; i < MAX_RULES; i++)
         { // traverse the whole heap looking for the current production
             // printf("Production found: %s\n", parsing_table[i].non_terminal);
@@ -855,11 +866,13 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
             {
                 printf("Production found: %s, Non-terminal: %s, Terminal: %s\n", parsing_table[i].production, parsing_table[i].non_terminal, parsing_table[i].terminal);
                 char *strProduction = strdup(parsing_table[i].production);
+                reverse(strProduction);                                 // Reverse the production to ensure proper stack traversal ordering.
                 char *formattedProduction = strtok(strProduction, " "); // Split collection of non-terminals into individual non terminals and push each of them into the stack
                 // printf("formatted Production: %s", formattedProduction);
                 while (formattedProduction != NULL)
                 {
                     // In here each production rule is split at the whitespaces, each of these productions needs to be pushed into the stack
+                    reverse(formattedProduction); // Unreverse the individual word so it pushes onto it properly
                     push(stack, formattedProduction);
                     printf("Current non-terminal: %s\n", formattedProduction);
                     formattedProduction = strtok(NULL, " "); // Split collection of non-terminals into individual non terminals and push each of them into the stack
