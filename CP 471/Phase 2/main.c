@@ -763,38 +763,38 @@ ParsingRule parsing_table[MAX_RULES] = {
     {"factor", "(", "( expr )"},
     {"factor", "f", "fname ( exprseq )"},
     {"factor", "v", "var"},
-    {"letter", "m", "m"},
-    {"letter", "r", "r"},
-    {"letter", "j", "j"},
-    {"letter", "z", "z"},
-    {"letter", "n", "n"},
-    {"letter", "e", "e"},
-    {"letter", "y", "y"},
-    {"letter", "g", "g"},
-    {"letter", "d", "d"},
-    {"letter", "k", "k"},
-    {"letter", "l", "l"},
-    {"letter", "h", "h"},
-    {"letter", "w", "w"},
-    {"letter", "i", "i"},
-    {"letter", "o", "o"},
-    {"letter", "s", "s"},
-    {"letter", "a", "a"},
-    {"letter", "u", "u"},
-    {"letter", "q", "q"},
-    {"letter", "x", "x"},
-    {"letter", "c", "c"},
-    {"letter", "f", "f"},
-    {"letter", "p", "p"},
-    {"letter", "v", "v"},
-    {"letter", "b", "b"},
-    {"letter", "t", "t"},
+    {"letter", "m", "ε"},
+    {"letter", "r", "ε"},
+    {"letter", "j", "ε"},
+    {"letter", "z", "ε"},
+    {"letter", "n", "ε"},
+    {"letter", "e", "ε"},
+    {"letter", "y", "ε"},
+    {"letter", "g", "ε"},
+    {"letter", "d", "ε"},
+    {"letter", "k", "ε"},
+    {"letter", "l", "ε"},
+    {"letter", "h", "ε"},
+    {"letter", "w", "ε"},
+    {"letter", "i", "ε"},
+    {"letter", "o", "ε"},
+    {"letter", "s", "ε"},
+    {"letter", "a", "ε"},
+    {"letter", "u", "ε"},
+    {"letter", "q", "ε"},
+    {"letter", "x", "ε"},
+    {"letter", "c", "ε"},
+    {"letter", "f", "ε"},
+    {"letter", "p", "ε"},
+    {"letter", "v", "ε"},
+    {"letter", "b", "ε"},
+    {"letter", "t", "ε"},
     {"digit", "n", "num"},
     {"digits_", "d", "digits_"},
     {"exponent", "e", "e sign digit digits_"},
     {"exponent", "E", "E sign digit digits_"},
-    {"sign", "-", "-"},
-    {"sign", "+", "+"},
+    {"sign", "-", "ε"},
+    {"sign", "+", "ε"},
     {"sign", "num", "ε"},
 };
 
@@ -913,7 +913,11 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
     {
         // get the top of stack(current production)
         char *current_production = pop(stack);
-        // printf("popped: %s From stack\n", current_production);
+        printf("popped: %s From stack\n Terminal: %s", current_production);
+        // if (strcmp(current_production, "decs") == 0)
+        // {
+        //     printf("popped: %s From stack\n", current_production);
+        // }
 
         // get the current token object
         TOKEN current_token = tk->array[token_index];
@@ -927,8 +931,8 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                 // printf("Production found: %s, Non-terminal: %s, Terminal: %s\n", parsing_table[i].production, parsing_table[i].non_terminal, parsing_table[i].terminal);
                 if (strcmp(parsing_table[i].production, "ε") == 0) // found a terminal
                 {
-                    printf("Terminal: %s\n", parsing_table[i].production, parsing_table[i].terminal);
-                    //  if(strcmp(current_token.lexeme, ""))
+                    // printf("Terminal: %s\n", parsing_table[i].terminal);
+                    //   if(strcmp(current_token.lexeme, ""))
                     if (strcmp(parsing_table[i].terminal, current_token.lexeme) == 0)
                     {
                         printf("Found token Token : %s Terminal: %s\n", current_token.lexeme, parsing_table[i].terminal);
