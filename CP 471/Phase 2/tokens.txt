@@ -20,7 +20,7 @@ Lexeme:while, Type: KEYWORD
 Lexeme:(, Type: DELIMITER
 Lexeme:i, Type: IDENTIFIER
 Lexeme:<, Type: COMPARISON_OPERATOR
-Lexeme:10, Type: INTEGER
+Lexeme:1, Type: INTEGER
 Lexeme:), Type: DELIMITER
 Lexeme: , Type: DELIMITER
 Lexeme:do, Type: KEYWORD
@@ -54,3 +54,10 @@ Lexeme:(, Type: DELIMITER
 Lexeme:x, Type: IDENTIFIER
 Lexeme:), Type: DELIMITER
 Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:int, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:def, Type: KEYWORD
