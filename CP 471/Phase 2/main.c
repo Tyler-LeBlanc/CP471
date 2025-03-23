@@ -762,32 +762,32 @@ ParsingRule parsing_table[MAX_RULES] = {
     {"factor", "v", "var"},
     {"factor", "n", "number"},
     {"factor", "(", "( expr )"},
-    {"letter", "w", "ε"},
-    {"letter", "s", "ε"},
-    {"letter", "l", "ε"},
-    {"letter", "r", "ε"},
-    {"letter", "f", "ε"},
-    {"letter", "x", "ε"},
-    {"letter", "k", "ε"},
-    {"letter", "z", "ε"},
-    {"letter", "h", "ε"},
-    {"letter", "u", "ε"},
-    {"letter", "a", "ε"},
-    {"letter", "g", "ε"},
-    {"letter", "y", "ε"},
-    {"letter", "j", "ε"},
-    {"letter", "d", "ε"},
-    {"letter", "v", "ε"},
-    {"letter", "e", "ε"},
-    {"letter", "t", "ε"},
-    {"letter", "o", "ε"},
-    {"letter", "b", "ε"},
-    {"letter", "q", "ε"},
-    {"letter", "n", "ε"},
-    {"letter", "i", "ε"},
-    {"letter", "m", "ε"},
-    {"letter", "p", "ε"},
-    {"letter", "c", "ε"},
+    {"letter", "w", "w"},
+    {"letter", "s", "s"},
+    {"letter", "l", "l"},
+    {"letter", "r", "r"},
+    {"letter", "f", "f"},
+    {"letter", "x", "x"},
+    {"letter", "k", "k"},
+    {"letter", "z", "z"},
+    {"letter", "h", "h"},
+    {"letter", "u", "u"},
+    {"letter", "a", "a"},
+    {"letter", "g", "g"},
+    {"letter", "y", "y"},
+    {"letter", "j", "j"},
+    {"letter", "d", "d"},
+    {"letter", "v", "v"},
+    {"letter", "e", "e"},
+    {"letter", "t", "t"},
+    {"letter", "o", "o"},
+    {"letter", "b", "b"},
+    {"letter", "q", "q"},
+    {"letter", "n", "n"},
+    {"letter", "i", "i"},
+    {"letter", "m", "m"},
+    {"letter", "p", "p"},
+    {"letter", "c", "c"},
     {"digit", "1", "ε"},
     {"digit", "5", "ε"},
     {"digit", "9", "ε"},
@@ -804,12 +804,12 @@ ParsingRule parsing_table[MAX_RULES] = {
     {"sign", "1", "ε"},
     {"sign", "5", "ε"},
     {"sign", "9", "ε"},
-    {"sign", "-", "ε"},
+    {"sign", "-", "-"},
     {"sign", "7", "ε"},
     {"sign", "2", "ε"},
     {"sign", "8", "ε"},
     {"sign", "4", "ε"},
-    {"sign", "+", "ε"},
+    {"sign", "+", "+"},
     {"sign", "6", "ε"},
     {"sign", "0", "ε"},
     {"sign", "3", "ε"},
@@ -905,14 +905,13 @@ void add_child(NODE *parent, NODE *child)
     parent->child_count++;
 }
 
-
 int getNextToken(TOKEN current_token, int token_index, TOKEN_ARRAY *tk)
 {
     printf("Found the token: %s\n", current_token.lexeme);
     token_index += 1;
     current_token = tk->array[token_index];
     // printf("Changed the token to: %s\n", current_token.lexeme);
-    while (strcmp(current_token.lexeme, " ") == 0 || strcmp(current_token.lexeme, "\n") == 0 || strcmp(current_token.lexeme, "\t") == 0)
+    while (strcmp(current_token.lexeme, " ") == 0 || strcmp(current_token.lexeme, "\n") == 0 || strcmp(current_token.lexeme, "\t") == 0) // nonesense token skip it (nothing of value space tab new line etc)
     {
         token_index += 1;
         current_token = tk->array[token_index];
@@ -975,14 +974,29 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                 {
                     // printf("Terminal: %s\n", parsing_table[i].terminal);
                     //   if(strcmp(current_token.lexeme, ""))
-                    if (strcmp(parsing_table[i].terminal, current_token.lexeme))
+                    if (strcmp(current_token.type, "DOUBLE") == 0 || strcmp(current_token.type, "INTEGER") == 0)
                     {
-                        token_index = getNextToken(current_token, token_index, tk);
+                        char temp_str[2];
+                        temp_str[0] = current_token.lexeme[0];
+                        temp_str[1] = '\0';
+                        // printf("looking at a double or an integer with char: %c\n", temp_str[0]);
+                        // printf("Comparing: %s and %s\n", parsing_table[i].terminal, temp_str);
+                        if (strcmp(parsing_table[i].terminal, temp_str) == 0)
+                        {
+                            token_index = getNextToken(current_token, token_index, tk);
+                        }
                     }
                     else
                     {
-                        // printf("Syntax Error\n");
-                        //   Syntax error
+                        if (strcmp(parsing_table[i].terminal, current_token.lexeme) == 0)
+                        {
+                            token_index = getNextToken(current_token, token_index, tk);
+                        }
+                        else
+                        {
+                            // printf("Syntax Error\n");
+                            //   Syntax error
+                        }
                     }
                 }
                 char *strProduction = strdup(parsing_table[i].production);
