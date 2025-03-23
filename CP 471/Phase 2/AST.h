@@ -3,16 +3,17 @@
 
 typedef struct NODE
 {
-    char* value;
-    struct NODE *left;
-    struct NODE *right;
+    char* value;    //holds the string value
+    struct NODE **children; //dynamic array of pointers to child nodes
+    int child_count;    //current num of child nodes
+    int capacity;   //max capacity of the child array
 
 } NODE;
 
 typedef struct
 {
-    char *array[100]; // array to hold elements of the stack
-    int top;         // index of the top element
+    char *array[100]; //array to hold elements of the stack
+    int top;         //index of the top element
 } STACK;
 
 typedef struct
@@ -32,6 +33,6 @@ char* peek(STACK *stack);
 
 // functions for the AST
 NODE *createNode(char* value);
-void insert(NODE **root, char* value);
+void add_child(NODE *parent, NODE *child);
 
 #endif

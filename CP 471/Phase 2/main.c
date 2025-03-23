@@ -499,6 +499,7 @@ TOKEN_ARRAY *LexicalAnalysis(char *filename)
 
 #define STACK_MAX 100
 #define MAX_RULES 189
+#define CHILD_ARRAY_SIZE 35
 
 // So the heap has the form non-terminal, terminal and production. It's a little confusion and awful to read
 // If there is no terminal and it is just a non-terminal, then the terminal slot is the first char of the non-terminal it leads to.
@@ -768,10 +769,13 @@ NODE *createNode(char *data)
     // make memory for new node
     NODE *new_node = (NODE *)malloc(sizeof(NODE));
 
-    // initialize values
-    new_node->value = data;
-    new_node->left = NULL;
-    new_node->right = NULL;
+    new_node->value = strdup(data);
+    new_node->child_count = 0;
+    new_node->capacity = CHILD_ARRAY_SIZE;
+
+    new_node->children = (NODE **)malloc(new_node->capacity * sizeof(NODE *));
+
+
 
     // return new node
     return new_node;
@@ -779,56 +783,10 @@ NODE *createNode(char *data)
 
 // Function to insert new node into tree
 //  use: insert(&root, char)
-void insert(NODE **root, char *data)
+void add_child(NODE *parent, NODE *child)
 {
-    // create a new node
-    NODE *new_node = createNode(data);
-
-    // check if tree is empty
-    if (*root == NULL)
-    {
-        *root = new_node;
-    }
-    else
-    {
-        // do level order traversal to find where to insert node
-
-        NODE *temp;
-        NODE *queue[100];
-        int front = -1;
-        int rear = -1;
-        queue[++rear] = *root;
-
-        while (front != rear)
-        {
-            // get current node
-            temp = queue[++front];
-
-            // check if left is empty, if so add node
-            if (temp->left == NULL)
-            {
-                temp->left = new_node;
-                return;
-            }
-            else
-            {
-                // if left is not empty, add to rear
-                queue[++rear] = temp->left;
-            }
-
-            // check if right is empty, if so add node
-            if (temp->right == NULL)
-            {
-                temp->right = new_node;
-                return;
-            }
-            else
-            {
-                // if right is not empty, add to rear
-                queue[++rear] = temp->right;
-            }
-        }
-    }
+    parent->children[parent->child_count] = child;
+    parent->child_count++;
 }
 
 /*
@@ -859,6 +817,9 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
         // get the current token object
         TOKEN current_token = tk->array[token_index];
         // printf("Trying to get parsing rule from LL(1) rules: %d\n", MAX_RULES);
+
+
+
         for (int i = 0; i < MAX_RULES; i++)
         { // traverse the whole heap looking for the current production
             // printf("Production found: %s\n", parsing_table[i].non_terminal);
@@ -879,6 +840,8 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                 }
             }
         }
+
+
 
         // check if top of stack is terminal
         // Overall Idea: Continue to push non terminal rules into the stack, when you pop off a rule, add the children of that rule to the stack
