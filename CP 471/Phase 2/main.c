@@ -481,6 +481,7 @@ TOKEN_ARRAY *LexicalAnalysis(char *filename)
 
             // Add token to array
             addToken(tk, token);
+            tk->size++;
             tempPos = 0; // Reset the buffer after reading a token
         }
     }
