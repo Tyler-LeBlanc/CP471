@@ -482,7 +482,6 @@ TOKEN_ARRAY *LexicalAnalysis(char *filename)
 
             // Add token to array
             addToken(tk, token);
-            tk->size++;
             tempPos = 0; // Reset the buffer after reading a token
         }
     }
@@ -888,10 +887,26 @@ void add_child(NODE *parent, NODE *child)
     parent->child_count++;
 }
 
+int getNextToken(TOKEN current_token, int token_index, TOKEN_ARRAY *tk)
+{
+    printf("Found the token: %s\n", current_token.lexeme);
+    token_index += 1;
+    current_token = tk->array[token_index];
+    // printf("Changed the token to: %s\n", current_token.lexeme);
+    while (strcmp(current_token.lexeme, " ") == 0 || strcmp(current_token.lexeme, "\n") == 0 || strcmp(current_token.lexeme, "\t") == 0)
+    {
+        token_index += 1;
+        current_token = tk->array[token_index];
+        // printf("Found whitespace incrementing the index %d\n", token_index);
+    }
+    return token_index;
+}
+
 /*F
  *   Phase 2 main function
  *   Runs the syntax analyzer
  */
+
 NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
 {
 
@@ -907,20 +922,28 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
 
     // initilize buffer to seperate rules
     char *production_buffer[256];
+    int temp = 0;
 
+    // while (temp < tk->size)
+    // {
+    //     printf("Temp: %d vs 102 %s\n", temp, tk->array[temp].lexeme);
+    //     temp += 1;
+    // }
     // main loop, runs while stack has productions
     while (!isEmpty(stack))
     {
         // get the top of stack(current production)
+        TOKEN current_token = tk->array[token_index];
+        // printf("Size of the tokens: %d\n", tk->size);
+
         char *current_production = pop(stack);
-        printf("popped: %s From stack\n Terminal: %s", current_production);
-        // if (strcmp(current_production, "decs") == 0)
-        // {
-        //     printf("popped: %s From stack\n", current_production);
-        // }
+        // printf("popped: %s From stack Looking For: %s With Type: %s\n", current_production, current_token.lexeme, current_token.type);
+        if (strcmp(current_production, current_token.lexeme) == 0)
+        {
+            token_index = getNextToken(current_token, token_index, tk);
+        }
 
         // get the current token object
-        TOKEN current_token = tk->array[token_index];
         // printf("Trying to get parsing rule from LL(1) rules: %d\n", MAX_RULES);
 
         for (int i = 0; i < MAX_RULES; i++)
@@ -935,9 +958,7 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                     //   if(strcmp(current_token.lexeme, ""))
                     if (strcmp(parsing_table[i].terminal, current_token.lexeme) == 0)
                     {
-                        printf("Found token Token : %s Terminal: %s\n", current_token.lexeme, parsing_table[i].terminal);
-                        token_index += 1; // consume the token
-                        current_token = tk->array[token_index];
+                        token_index = getNextToken(current_token, token_index, tk);
                     }
                     else
                     {
@@ -946,17 +967,25 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                     }
                 }
                 char *strProduction = strdup(parsing_table[i].production);
-                reverse(strProduction);                                 // Reverse the production to ensure proper stack traversal ordering.
-                char *formattedProduction = strtok(strProduction, " "); // Split collection of non-terminals into individual non terminals and push each of them into the stack
-                // printf("formatted Production: %s", formattedProduction);
-                while (formattedProduction != NULL)
+                if (strcmp(strProduction, "ε") == 0) // if we found a terminal
                 {
-                    // In here each production rule is split at the whitespaces, each of these productions needs to be pushed into the stack
-                    reverse(formattedProduction); // Unreverse the individual word so it pushes onto it properly
-                    push(stack, formattedProduction);
-                    // printf("pushing to the stack\n");
-                    //  printf("Current non-terminal: %s\n", formattedProduction);
-                    formattedProduction = strtok(NULL, " "); // Split collection of non-terminals into individual non terminals and push each of them into the stack
+                    push(stack, parsing_table[i].terminal); // add the terminal to the stack, not epsilon.
+                }
+                else
+                {
+                    reverse(strProduction);                                 // Reverse the production to ensure proper stack traversal ordering.
+                    char *formattedProduction = strtok(strProduction, " "); // Split collection of non-terminals into individual non terminals and push each of them into the stack
+                    // printf("formatted Production: %s", formattedProduction);
+                    while (formattedProduction != NULL)
+                    {
+                        // In here each production rule is split at the whitespaces, each of these productions needs to be pushed into the stack
+                        reverse(formattedProduction); // Unreverse the individual word so it pushes onto it properly
+
+                        push(stack, formattedProduction);
+                        // printf("pushing to the stack\n");
+                        //  printf("Current non-terminal: %s\n", formattedProduction);
+                        formattedProduction = strtok(NULL, " "); // Split collection of non-terminals into individual non terminals and push each of them into the stack
+                    }
                 }
             }
         }
