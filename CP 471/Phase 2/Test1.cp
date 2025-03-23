@@ -4,5 +4,3 @@ while(i<10) do
 	x = x+i*i; i=i+1
 od;
 print(x);.
-
-@
