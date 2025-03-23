@@ -830,6 +830,7 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                     {
                         printf("Found token Token : %s\n", current_token.lexeme);
                         token_index += 1; // consume the token
+                        current_token = tk->array[token_index];
                     }
                     else
                     {
