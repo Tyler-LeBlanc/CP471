@@ -5,4 +5,4 @@ while(i<10) do
 od;
 print(x);
 
-int. def
+int def double

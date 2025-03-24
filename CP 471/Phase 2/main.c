@@ -956,11 +956,15 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
         // printf("Size of the tokens: %d\n", tk->size);
 
         char *current_production = pop(stack);
-        // printf("popped: %s From stack Looking For: %s With Type: %s\n", current_production, current_token.lexeme, current_token.type);
-        // if (strcmp(current_production, current_token.lexeme) == 0)
-        // {
-        //     token_index = getNextToken(current_token, token_index, tk);
-        // }
+        printf("popped: %s From stack Looking For: %s With Type: %s\n", current_production, current_token.lexeme, current_token.type);
+        if (strcmp(current_production, current_token.lexeme) == 0) // if we popped the token we're looking for
+        {
+            token_index = getNextToken(current_token, token_index, tk); // Get the next token
+        }
+        else
+        {
+            // printf("Syntax Error: %s\n", current_production);
+        }
 
         // get the current token object
         // printf("Trying to get parsing rule from LL(1) rules: %d\n", MAX_RULES);
@@ -982,16 +986,18 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                         temp_str[1] = '\0';
                         // printf("looking at a double or an integer with char: %c\n", temp_str[0]);
                         // printf("Comparing: %s and %s\n", parsing_table[i].terminal, temp_str);
-                        if (strcmp(parsing_table[i].terminal, temp_str) == 0)
+                        if (strcmp(parsing_table[i].terminal, temp_str) == 0) // If the terminal I'm looking at is the int or double I am looking for:
                         {
-                            token_index = getNextToken(current_token, token_index, tk);
+                            push(stack, parsing_table[i].terminal);
+                            // token_index = getNextToken(current_token, token_index, tk);
                         }
                     }
-                    else
+                    else // If it's not an int or double
                     {
-                        if (strcmp(parsing_table[i].terminal, current_token.lexeme) == 0)
+                        if (strcmp(parsing_table[i].terminal, current_token.lexeme) == 0) // Check if the terminal is our current lexeme
                         {
-                            token_index = getNextToken(current_token, token_index, tk);
+                            push(stack, parsing_table[i].terminal); // add to the stack
+                            // token_index = getNextToken(current_token, token_index, tk); // Get that next token
                         }
                         else
                         {
@@ -1032,6 +1038,8 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
         // If not then we continue to expand the production rules and find more non-terminals which hopefully match.
         // If the stack is empty but we've not fully explored the stack then we have a syntax error.
         // handle top of stack is non-terminal
+        printf("Press Enter to continue...\n");
+        getchar(); // Waits for Enter key need to read output
     }
     printf("Done Syntax Analysis\n");
 }

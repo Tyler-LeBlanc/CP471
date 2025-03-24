@@ -59,5 +59,6 @@ Lexeme:
 Lexeme:
 , Type: DELIMITER
 Lexeme:int, Type: KEYWORD
-Lexeme:., Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme:def, Type: KEYWORD
 Lexeme: , Type: DELIMITER
