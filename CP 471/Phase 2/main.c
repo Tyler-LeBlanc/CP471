@@ -486,6 +486,17 @@ TOKEN_ARRAY *LexicalAnalysis(char *filename)
         }
     }
 
+
+    
+    if (tempPos > 0)
+    {
+        tempBuffer[tempPos] = '\0';
+        TOKEN token;
+        copyString(token.lexeme, tempBuffer, sizeof(token.lexeme));
+        copyString(token.type, getTokenType(state), sizeof(token.type));
+        addToken(tk, token);
+    }
+
     printTokens(tk);
     // Free memory
     freeDB(db);
@@ -500,319 +511,264 @@ TOKEN_ARRAY *LexicalAnalysis(char *filename)
  */
 
 #define STACK_MAX 100
-#define MAX_RULES 305
 #define CHILD_ARRAY_SIZE 35
 
 // So the heap has the form non-terminal, terminal and production. It's a little confusion and awful to read
 // If there is no terminal and it is just a non-terminal, then the terminal slot is the first char of the non-terminal it leads to.
 // If there is a terminal then the terminal is just the terminal and the non terminal is epsilon.
 
-ParsingRule parsing_table[MAX_RULES] = {
-    {"program", "f", "fdecls decs st_seq ."},
-    {"fdecls", "f", "fdec fdecls_"},
-    {"fdecls_", "int", "ε"},
-    {"fdecls_", ";", "; fdec fdecls_"},
-    {"fdecls_", "double", "ε"},
-    {"fdec", "d", "def type fname ( params ) decs st_seq fed"},
-    {"params", "t", "type var params_"},
-    {"params_", ")", "ε"},
-    {"params_", ",", ", type var params_"},
-    {"fname", "i", "id"},
-    {"decs", "d", "decl decs_"},
-    {"decs_", "w", "ε"},
-    {"decs_", "s", "ε"},
-    {"decs_", "while", "ε"},
-    {"decs_", "l", "ε"},
-    {"decs_", "r", "ε"},
-    {"decs_", "if", "ε"},
-    {"decs_", "f", "ε"},
-    {"decs_", "x", "ε"},
-    {"decs_", ";", "ε"},
-    {"decs_", "k", "ε"},
-    {"decs_", "z", "ε"},
-    {"decs_", "h", "ε"},
-    {"decs_", "u", "ε"},
-    {"decs_", "a", "ε"},
-    {"decs_", "g", "ε"},
-    {"decs_", "return", "ε"},
-    {"decs_", "y", "ε"},
-    {"decs_", "j", "ε"},
-    {"decs_", "d", "ε"},
-    {"decs_", "v", "ε"},
-    {"decs_", "e", "ε"},
-    {"decs_", "t", "ε"},
-    {"decs_", "print", "ε"},
-    {"decs_", "o", "ε"},
-    {"decs_", "b", "ε"},
-    {"decs_", "fed", "ε"},
-    {"decs_", "q", "ε"},
-    {"decs_", "n", "ε"},
-    {"decs_", "i", "ε"},
-    {"decs_", "m", "ε"},
-    {"decs_", "p", "ε"},
-    {"decs_", ".", "ε"},
-    {"decs_", "c", "ε"},
-    {"decl", "t", "type varlist"},
-    {"type", "d", "double"},
-    {"type", "i", "int"},
-    {"varlist", "v", "var , varlist_"},
-    {"varlist_", "w", "ε"},
-    {"varlist_", "s", "ε"},
-    {"varlist_", "while", "ε"},
-    {"varlist_", "l", "ε"},
-    {"varlist_", "r", "ε"},
-    {"varlist_", "if", "ε"},
-    {"varlist_", "f", "ε"},
-    {"varlist_", "x", "ε"},
-    {"varlist_", ";", "ε"},
-    {"varlist_", "k", "ε"},
-    {"varlist_", "z", "ε"},
-    {"varlist_", "h", "ε"},
-    {"varlist_", "u", "ε"},
-    {"varlist_", "a", "ε"},
-    {"varlist_", "g", "ε"},
-    {"varlist_", "return", "ε"},
-    {"varlist_", "y", "ε"},
-    {"varlist_", "j", "ε"},
-    {"varlist_", "d", "ε"},
-    {"varlist_", "v", "ε"},
-    {"varlist_", "e", "ε"},
-    {"varlist_", "t", "ε"},
-    {"varlist_", "print", "ε"},
-    {"varlist_", "o", "ε"},
-    {"varlist_", "b", "ε"},
-    {"varlist_", "fed", "ε"},
-    {"varlist_", "q", "ε"},
-    {"varlist_", "n", "ε"},
-    {"varlist_", "i", "ε"},
-    {"varlist_", "m", "ε"},
-    {"varlist_", "p", "ε"},
-    {"varlist_", ".", "ε"},
-    {"varlist_", "c", "ε"},
-    {"varlist_", ",", ", var varlist_"},
-    {"st_seq", "s", "statement ; st_seq"},
-    {"statement", "w", "while bexpr do st_seq od"},
-    {"statement", "else", "ε"},
-    {"statement", "r", "return expr"},
-    {"statement", "fi", "ε"},
-    {"statement", ";", "ε"},
-    {"statement", "v", "var = expr"},
-    {"statement", "fed", "ε"},
-    {"statement", "od", "ε"},
-    {"statement", "i", "if bexpr then st_seq st_seq_ fi"},
-    {"statement", "p", "print expr"},
-    {"statement", ".", "ε"},
-    {"st_seq_", "fi", "ε"},
-    {"st_seq_", "e", "else st_seq"},
-    {"expr", "t", "term expr_"},
-    {"expr_", "else", "ε"},
-    {"expr_", "==", "ε"},
-    {"expr_", "fi", "ε"},
-    {"expr_", "do", "ε"},
-    {"expr_", ";", "ε"},
-    {"expr_", "and", "ε"},
-    {"expr_", "-", "- term expr_"},
-    {"expr_", ">=", "ε"},
-    {"expr_", ">", "ε"},
-    {"expr_", "fed", "ε"},
-    {"expr_", "od", "ε"},
-    {"expr_", "then", "ε"},
-    {"expr_", "<=", "ε"},
-    {"expr_", "or", "ε"},
-    {"expr_", "]", "ε"},
-    {"expr_", "<", "ε"},
-    {"expr_", "+", "+ term expr_"},
-    {"expr_", ")", "ε"},
-    {"expr_", ".", "ε"},
-    {"expr_", ",", "ε"},
-    {"expr_", "<>", "ε"},
-    {"term", "f", "factor term_"},
-    {"term_", "else", "ε"},
-    {"term_", "==", "ε"},
-    {"term_", "fi", "ε"},
-    {"term_", "do", "ε"},
-    {"term_", ";", "ε"},
-    {"term_", "*", "* factor term_"},
-    {"term_", "and", "ε"},
-    {"term_", "-", "ε"},
-    {"term_", ">=", "ε"},
-    {"term_", ">", "ε"},
-    {"term_", "/", "/ factor term_"},
-    {"term_", "fed", "ε"},
-    {"term_", "od", "ε"},
-    {"term_", "then", "ε"},
-    {"term_", "%", "% factor term_"},
-    {"term_", "<=", "ε"},
-    {"term_", "or", "ε"},
-    {"term_", "]", "ε"},
-    {"term_", "<", "ε"},
-    {"term_", "+", "ε"},
-    {"term_", ")", "ε"},
-    {"term_", ".", "ε"},
-    {"term_", ",", "ε"},
-    {"term_", "<>", "ε"},
-    {"exprseq", "e", "expr , exprseq_"},
-    {"exprseq_", ")", "ε"},
-    {"exprseq_", ",", ", expr exprseq_"},
-    {"bexpr", "b", "bterm bexpr_"},
-    {"bexpr_", "do", "ε"},
-    {"bexpr_", "o", "or bfactor bterm_"},
-    {"bexpr_", "then", "ε"},
-    {"bexpr_", ")", "ε"},
-    {"bterm", "b", "bfactor bterm_"},
-    {"bterm_", "do", "ε"},
-    {"bterm_", "a", "and bfactor bterm_"},
-    {"bterm_", "then", "ε"},
-    {"bterm_", "or", "ε"},
-    {"bterm_", ")", "ε"},
-    {"bfactor", "e", "expr comp expr"},
-    {"bfactor", "n", "not bfactor"},
-    {"bfactor", "(", "( bexpr )"},
-    {"comp", ">", ">="},
-    {"comp", "=", "=="},
-    {"comp", "<", "<>"},
-    {"var", "i", "id [ expr ]"},
-    {"id", "l", "letter id_"},
-    {"id_", "w", "ε"},
-    {"id_", "s", "ε"},
-    {"id_", "while", "ε"},
-    {"id_", "else", "ε"},
-    {"id_", "l", "ε"},
-    {"id_", "r", "ε"},
-    {"id_", "if", "ε"},
-    {"id_", "[", "ε"},
-    {"id_", "int", "ε"},
-    {"id_", "fi", "ε"},
-    {"id_", "f", "ε"},
-    {"id_", "do", "ε"},
-    {"id_", "x", "ε"},
-    {"id_", ";", "ε"},
-    {"id_", "*", "ε"},
-    {"id_", "k", "ε"},
-    {"id_", "z", "ε"},
-    {"id_", "and", "ε"},
-    {"id_", "h", "ε"},
-    {"id_", "u", "ε"},
-    {"id_", "a", "ε"},
-    {"id_", "g", "ε"},
-    {"id_", "-", "ε"},
-    {"id_", ">=", "ε"},
-    {"id_", "return", "ε"},
-    {"id_", "y", "ε"},
-    {"id_", "j", "ε"},
-    {"id_", "d", "ε"},
-    {"id_", "v", "ε"},
-    {"id_", "e", "ε"},
-    {"id_", "t", "ε"},
-    {"id_", "print", "ε"},
-    {"id_", "o", "ε"},
-    {"id_", ">", "ε"},
-    {"id_", "/", "ε"},
-    {"id_", "=", "ε"},
-    {"id_", "b", "ε"},
-    {"id_", "fed", "ε"},
-    {"id_", "od", "ε"},
-    {"id_", "q", "ε"},
-    {"id_", "n", "ε"},
-    {"id_", "then", "ε"},
-    {"id_", "%", "ε"},
-    {"id_", "(", "ε"},
-    {"id_", "<=", "ε"},
-    {"id_", "i", "ε"},
-    {"id_", "m", "ε"},
-    {"id_", "or", "ε"},
-    {"id_", "]", "ε"},
-    {"id_", "<", "ε"},
-    {"id_", "+", "ε"},
-    {"id_", "double", "ε"},
-    {"id_", "p", "ε"},
-    {"id_", ")", "ε"},
-    {"id_", ".", "ε"},
-    {"id_", "c", "ε"},
-    {"id_", ",", "ε"},
-    {"id_", "<>", "ε"},
-    {"number", "i", "integer"},
-    {"number", "D", "Double"},
-    {"Double", "i", "integer . integer"},
-    {"integer", "d", "digit integer_"},
-    {"integer_", "fi", "ε"},
-    {"integer_", "do", "ε"},
-    {"integer_", ";", "ε"},
-    {"integer_", "*", "ε"},
-    {"integer_", "and", "ε"},
-    {"integer_", "-", "ε"},
-    {"integer_", ">=", "ε"},
-    {"integer_", "d", "digit integer_"},
-    {"integer_", ">", "ε"},
-    {"integer_", "/", "ε"},
-    {"integer_", "fed", "ε"},
-    {"integer_", "od", "ε"},
-    {"integer_", "then", "ε"},
-    {"integer_", "%", "ε"},
-    {"integer_", "<=", "ε"},
-    {"integer_", "or", "ε"},
-    {"integer_", "]", "ε"},
-    {"integer_", "<", "ε"},
-    {"integer_", "+", "ε"},
-    {"integer_", ")", "ε"},
-    {"integer_", ".", "ε"},
-    {"integer_", ",", "ε"},
-    {"integer_", "<>", "ε"},
-    {"factor", "f", "fname ( exprseq )"},
-    {"factor", "v", "var"},
-    {"factor", "n", "number"},
-    {"factor", "(", "( expr )"},
-    {"letter", "w", "ε"},
-    {"letter", "s", "ε"},
-    {"letter", "l", "ε"},
-    {"letter", "r", "ε"},
-    {"letter", "f", "ε"},
-    {"letter", "x", "ε"},
-    {"letter", "k", "ε"},
-    {"letter", "z", "ε"},
-    {"letter", "h", "ε"},
-    {"letter", "u", "ε"},
-    {"letter", "a", "ε"},
-    {"letter", "g", "ε"},
-    {"letter", "y", "ε"},
-    {"letter", "j", "ε"},
-    {"letter", "d", "ε"},
-    {"letter", "v", "ε"},
-    {"letter", "e", "ε"},
-    {"letter", "t", "ε"},
-    {"letter", "o", "ε"},
-    {"letter", "b", "ε"},
-    {"letter", "q", "ε"},
-    {"letter", "n", "ε"},
-    {"letter", "i", "ε"},
-    {"letter", "m", "ε"},
-    {"letter", "p", "ε"},
-    {"letter", "c", "ε"},
-    {"digit", "1", "ε"},
-    {"digit", "5", "ε"},
-    {"digit", "9", "ε"},
-    {"digit", "7", "ε"},
-    {"digit", "2", "ε"},
-    {"digit", "8", "ε"},
-    {"digit", "4", "ε"},
-    {"digit", "6", "ε"},
-    {"digit", "0", "ε"},
-    {"digit", "3", "ε"},
-    {"digits_", "d", "digits_"},
-    {"exponent", "E", "E sign digit digits_"},
-    {"exponent", "e", "e sign digit digits_"},
-    {"sign", "1", "ε"},
-    {"sign", "5", "ε"},
-    {"sign", "9", "ε"},
-    {"sign", "-", "-"},
-    {"sign", "7", "ε"},
-    {"sign", "2", "ε"},
-    {"sign", "8", "ε"},
-    {"sign", "4", "ε"},
-    {"sign", "+", "+"},
-    {"sign", "6", "ε"},
-    {"sign", "0", "ε"},
-    {"sign", "3", "ε"},
+ParseTableEntry ll1_table[NUM_NONTERMINALS][NUM_TERMINALS] = {
+    /* NT_PROGRAM: <program> → <fdecls_list> <decl_list> <stmt_seq> . */
+    [NT_PROGRAM] = {
+        [TERM_DEF]    = {"<fdecls_list> <decl_list> <stmt_seq> ."},
+        [TERM_INT]    = {"<fdecls_list> <decl_list> <stmt_seq> ."},
+        [TERM_DOUBLE] = {"<fdecls_list> <decl_list> <stmt_seq> ."},
+        [TERM_ID]     = {"<fdecls_list> <decl_list> <stmt_seq> ."},
+        [TERM_IF]     = {"<fdecls_list> <decl_list> <stmt_seq> ."},
+        [TERM_WHILE]  = {"<fdecls_list> <decl_list> <stmt_seq> ."},
+        [TERM_PRINT]  = {"<fdecls_list> <decl_list> <stmt_seq> ."},
+        [TERM_RETURN] = {"<fdecls_list> <decl_list> <stmt_seq> ."}
+    },
+    /* NT_FDECLS_LIST: → <fdec> ; <fdecls_list> | ε */
+    [NT_FDECLS_LIST] = {
+        [TERM_DEF]    = {"<fdec> ; <fdecls_list>"},
+        [TERM_INT]    = {"ε"},
+        [TERM_DOUBLE] = {"ε"},
+        [TERM_ID]     = {"ε"},
+        [TERM_IF]     = {"ε"},
+        [TERM_WHILE]  = {"ε"},
+        [TERM_PRINT]  = {"ε"},
+        [TERM_RETURN] = {"ε"},
+        [TERM_DOT]    = {"ε"}
+    },
+    /* NT_FDEC: def <type> <id> ( <params> ) <decl_list> <stmt_seq> fed */
+    [NT_FDEC] = {
+        [TERM_DEF] = {"def <type> <id> ( <params> ) <decl_list> <stmt_seq> fed"}
+    },
+    /* NT_PARAMS: → <type> <id> <param_list> | ε */
+    [NT_PARAMS] = {
+        [TERM_INT]    = {"<type> <id> <param_list>"},
+        [TERM_DOUBLE] = {"<type> <id> <param_list>"},
+        [TERM_RPAREN] = {"ε"}
+    },
+    /* NT_PARAM_LIST: → , <type> <id> <param_list> | ε */
+    [NT_PARAM_LIST] = {
+        [TERM_COMMA] = {", <type> <id> <param_list>"},
+        [TERM_RPAREN] = {"ε"}
+    },
+    /* NT_DECL_LIST: → <decl> ; <decl_list> | ε */
+    [NT_DECL_LIST] = {
+        [TERM_INT]    = {"<decl> ; <decl_list>"},
+        [TERM_DOUBLE] = {"<decl> ; <decl_list>"},
+        [TERM_IF]     = {"ε"},
+        [TERM_WHILE]  = {"ε"},
+        [TERM_PRINT]  = {"ε"},
+        [TERM_RETURN] = {"ε"},
+        [TERM_DOT]    = {"ε"},
+        [TERM_ID]     = {"ε"}  
+    },
+    /* NT_DECL: → <type> <varlist> */
+    [NT_DECL] = {
+        [TERM_INT]    = {"<type> <varlist>"},
+        [TERM_DOUBLE] = {"<type> <varlist>"}
+    },
+    /* NT_TYPE: → int | double */
+    [NT_TYPE] = {
+        [TERM_INT]    = {"int"},
+        [TERM_DOUBLE] = {"double"}
+    },
+    /* NT_VARLIST: → <id> <varlist_tail> */
+    [NT_VARLIST] = {
+        [TERM_ID] = {"<id> <varlist_tail>"}
+    },
+    /* NT_VARLIST_TAIL: → , <id> <varlist_tail> | ε */
+    [NT_VARLIST_TAIL] = {
+        [TERM_COMMA]    = {", <id> <varlist_tail>"},
+        [TERM_SEMICOLON] = {"ε"},
+        [TERM_RPAREN]    = {"ε"},
+        [TERM_DOT]       = {"ε"}
+    },
+    /* NT_STMT_SEQ: → <statement> <stmt_seq_tail> */
+    [NT_STMT_SEQ] = {
+        [TERM_ID]     = {"<statement> <stmt_seq_tail>"},
+        [TERM_IF]     = {"<statement> <stmt_seq_tail>"},
+        [TERM_WHILE]  = {"<statement> <stmt_seq_tail>"},
+        [TERM_PRINT]  = {"<statement> <stmt_seq_tail>"},
+        [TERM_RETURN] = {"<statement> <stmt_seq_tail>"},
+        [TERM_FI]     = {"ε"},
+        [TERM_OD]     = {"ε"},
+        [TERM_DOT]    = {"ε"}
+    },
+    /* NT_STMT_SEQ_TAIL: → ; <statement> <stmt_seq_tail> | ε */
+    [NT_STMT_SEQ_TAIL] = {
+        [TERM_SEMICOLON] = {"; <statement> <stmt_seq_tail>"},
+        [TERM_FI]        = {"ε"},
+        [TERM_OD]        = {"ε"},
+        [TERM_DOT]       = {"ε"}
+    },
+    /* NT_STATEMENT:
+         → <id> <var_tail> = <expr>
+         | if <bexpr> then <stmt_seq> <if_tail>
+         | while <bexpr> do <stmt_seq> od
+         | print <expr>
+         | return <expr>
+         | ε
+    */
+    [NT_STATEMENT] = {
+        [TERM_ID]     = {"<id> <var_tail> = <expr>"},
+        [TERM_IF]     = {"if <bexpr> then <stmt_seq> <if_tail>"},
+        [TERM_WHILE]  = {"while <bexpr> do <stmt_seq> od"},
+        [TERM_PRINT]  = {"print <expr>"},
+        [TERM_RETURN] = {"return <expr>"},
+        [TERM_SEMICOLON] = {"ε"},
+        [TERM_FI]        = {"ε"},
+        [TERM_OD]        = {"ε"},
+        [TERM_DOT]       = {"ε"}
+    },
+    /* NT_IF_TAIL: → fi | else <stmt_seq> fi */
+    [NT_IF_TAIL] = {
+        [TERM_FI]   = {"fi"},
+        [TERM_ELSE] = {"else <stmt_seq> fi"}
+    },
+    /* NT_EXPR: → <term> <expr_prime> */
+    [NT_EXPR] = {
+        [TERM_ID]     = {"<term> <expr_prime>"},
+        [TERM_NUMBER] = {"<term> <expr_prime>"},
+        [TERM_LPAREN] = {"<term> <expr_prime>"}
+    },
+    /* NT_EXPR_PRIME: → + <term> <expr_prime> | - <term> <expr_prime> | ε */
+    [NT_EXPR_PRIME] = {
+        [TERM_PLUS]   = {"+ <term> <expr_prime>"},
+        [TERM_MINUS]  = {"- <term> <expr_prime>"},
+        [TERM_RPAREN] = {"ε"},
+        [TERM_COMMA]  = {"ε"},
+        [TERM_SEMICOLON] = {"ε"},
+        [TERM_FI]        = {"ε"},
+        [TERM_DOT]       = {"ε"},
+        [TERM_LT]       = {"ε"}
+    },
+    /* NT_TERM: → <factor> <term_prime> */
+    [NT_TERM] = {
+        [TERM_ID]     = {"<factor> <term_prime>"},
+        [TERM_NUMBER] = {"<factor> <term_prime>"},
+        [TERM_LPAREN] = {"<factor> <term_prime>"}
+    },
+    /* NT_TERM_PRIME: → * <factor> <term_prime>
+                        | / <factor> <term_prime>
+                        | % <factor> <term_prime>
+                        | ε
+    */
+    [NT_TERM_PRIME] = {
+        [TERM_MULT] = {"* <factor> <term_prime>"},
+        [TERM_DIV]  = {"/ <factor> <term_prime>"},
+        [TERM_MOD]  = {"% <factor> <term_prime>"},
+        [TERM_PLUS] = {"ε"},
+        [TERM_MINUS] = {"ε"},
+        [TERM_RPAREN] = {"ε"},
+        [TERM_COMMA] = {"ε"},
+        [TERM_SEMICOLON] = {"ε"},
+        [TERM_FI]        = {"ε"},
+        [TERM_DOT]       = {"ε"},
+        [TERM_LT]        = {"ε"}
+    },
+    /* NT_FACTOR:
+         → <id> <factor_tail> | <number> | ( <expr> )
+    */
+    [NT_FACTOR] = {
+        [TERM_ID]     = {"<id> <factor_tail>"},
+        [TERM_NUMBER] = {"number"},
+        [TERM_LPAREN] = {"( <expr> )"}
+    },
+    /* NT_FACTOR_TAIL:
+         → ( <exprseq> ) | <var_tail>
+         (If a '(' follows an identifier then it’s a function call;
+          otherwise use the variable’s tail production.)
+    */
+    [NT_FACTOR_TAIL] = {
+        [TERM_LPAREN]   = {"( <exprseq> )"},
+        [TERM_LBRACKET] = {"<var_tail>"},
+        [TERM_PLUS]     = {"<var_tail>"},
+        [TERM_MINUS]    = {"<var_tail>"},
+        [TERM_MULT]     = {"<var_tail>"},
+        [TERM_DIV]      = {"<var_tail>"},
+        [TERM_MOD]      = {"<var_tail>"},
+        [TERM_RPAREN]   = {"ε"},
+        [TERM_COMMA]    = {"ε"},
+        [TERM_SEMICOLON] = {"ε"},
+        [TERM_FI]       = {"ε"},
+        [TERM_DOT]      = {"ε"},
+        [TERM_LT]       = {"ε"}
+    },
+    /* NT_EXPRSEQ: → <expr> <exprseq_tail> | ε */
+    [NT_EXPRSEQ] = {
+        [TERM_ID]     = {"<expr> <exprseq_tail>"},
+        [TERM_NUMBER] = {"<expr> <exprseq_tail>"},
+        [TERM_LPAREN] = {"<expr> <exprseq_tail>"},
+        [TERM_RPAREN] = {"ε"}
+    },
+    /* NT_EXPRSEQ_TAIL: → , <expr> <exprseq_tail> | ε */
+    [NT_EXPRSEQ_TAIL] = {
+        [TERM_COMMA]  = {", <expr> <exprseq_tail>"},
+        [TERM_RPAREN] = {"ε"}
+    },
+    /* NT_BEXPR: → <bterm> <bexpr_prime> */
+    [NT_BEXPR] = {
+        [TERM_LPAREN] = {"<bterm> <bexpr_prime>"},
+        [TERM_NOT]    = {"<bterm> <bexpr_prime>"}
+    },
+    /* NT_BEXPR_PRIME: → or <bterm> <bexpr_prime> | ε */
+    [NT_BEXPR_PRIME] = {
+        [TERM_OR]    = {"or <bterm> <bexpr_prime>"},
+        [TERM_THEN]  = {"ε"},
+        [TERM_RPAREN] = {"ε"}
+    },
+    /* NT_BTERM: → <bfactor> <bterm_prime> */
+    [NT_BTERM] = {
+        [TERM_LPAREN] = {"<bfactor> <bterm_prime>"},
+        [TERM_NOT]    = {"<bfactor> <bterm_prime>"}
+    },
+    /* NT_BTERM_PRIME: → and <bfactor> <bterm_prime> | ε */
+    [NT_BTERM_PRIME] = {
+        [TERM_AND]   = {"and <bfactor> <bterm_prime>"},
+        [TERM_OR]    = {"ε"},
+        [TERM_THEN]  = {"ε"},
+        [TERM_RPAREN] = {"ε"}
+    },
+    /* NT_BFACTOR: → ( <bfactor_inner> ) | not <bfactor> */
+    [NT_BFACTOR] = {
+        [TERM_LPAREN] = {"( <bfactor_inner> )"},
+        [TERM_NOT]    = {"not <bfactor>"}
+    },
+    /* NT_BFACTOR_INNER: → <expr> <comp> <expr> */
+    [NT_BFACTOR_INNER] = {
+        [TERM_LPAREN] = {"<expr> <comp> <expr>"},
+        [TERM_ID]     = {"<expr> <comp> <expr>"},
+        [TERM_NUMBER] = {"<expr> <comp> <expr>"}
+    },
+    /* NT_COMP: → < | > | == | <= | >= | <> */
+    [NT_COMP] = {
+        [TERM_LT]   = {"<"},
+        [TERM_GT]   = {">"},
+        [TERM_EQEQ] = {"=="},
+        [TERM_LE]   = {"<="},
+        [TERM_GE]   = {">="},
+        [TERM_NE]   = {"<>"}
+    },
+    /* NT_VAR_TAIL: → [ <expr> ] | ε */
+    [NT_VAR_TAIL] = {
+        [TERM_LBRACKET] = {"[ <expr> ]"},
+        [TERM_PLUS]     = {"ε"},
+        [TERM_MINUS]    = {"ε"},
+        [TERM_MULT]     = {"ε"},
+        [TERM_DIV]      = {"ε"},
+        [TERM_MOD]      = {"ε"},
+        [TERM_RPAREN]   = {"ε"},
+        [TERM_COMMA]    = {"ε"},
+        [TERM_SEMICOLON] = {"ε"},
+        [TERM_FI]       = {"ε"},
+        [TERM_DOT]      = {"ε"},
+        [TERM_ASSIGN]   = {"ε"}
+    }
 };
 
 void reverse(char *str)
@@ -845,40 +801,30 @@ int isFull(STACK *stack)
 }
 
 // Function to add value onto the stack
-// use: push(&stack, char)
-void push(STACK *stack, const char *value)
-{
-    if (isFull(stack))
-    {
-        // printf("Stack is full.\n");
-        return;
+void push(STACK *s, Symbol sym) {
+    if (s->top >= STACK_MAX - 1) {
+        fprintf(stderr, "Stack overflow!\n");
+        exit(1);
     }
-    // Allocate and copy the string to store on the stack
-    stack->array[++stack->top] = strdup(value);
+    s->array[++(s->top)] = sym;
 }
 
 // Function to remove value from the stack
-// use: pop(&stack, char)
-char *pop(STACK *stack)
-{
-    if (isEmpty(stack))
-    {
-        printf("Stack is empty.");
-        return NULL;
+Symbol pop(STACK *s) {
+    if (s->top < 0) {
+        fprintf(stderr, "Stack underflow!\n");
+        exit(1);
     }
-
-    return stack->array[stack->top--];
+    return s->array[(s->top)--];
 }
 
 // Function to check what the top value of the stack is
-char *peek(STACK *stack)
-{
-    if (!isEmpty(stack))
-    {
-        return stack->array[stack->top];
+Symbol peek(STACK *s) {
+    if (s->top < 0) {
+        fprintf(stderr, "Stack empty!\n");
+        exit(1);
     }
-
-    return NULL;
+    return s->array[s->top];
 }
 
 // Function to create AST node
@@ -898,142 +844,277 @@ NODE *createNode(char *data)
 }
 
 // Function to insert new node into tree
-//  use: insert(&root, char)
 void add_child(NODE *parent, NODE *child)
 {
     parent->children[parent->child_count] = child;
     parent->child_count++;
 }
 
-int getNextToken(TOKEN current_token, int token_index, TOKEN_ARRAY *tk)
-{
-    printf("Found the token: %s\n", current_token.lexeme);
-    token_index += 1;
-    current_token = tk->array[token_index];
-    // printf("Changed the token to: %s\n", current_token.lexeme);
-    while (strcmp(current_token.lexeme, " ") == 0 || strcmp(current_token.lexeme, "\n") == 0 || strcmp(current_token.lexeme, "\t") == 0) // nonesense token skip it (nothing of value space tab new line etc)
-    {
-        token_index += 1;
-        current_token = tk->array[token_index];
-        // printf("Found whitespace incrementing the index %d\n", token_index);
+
+/* Convert a TOKEN (from your lexical analyzer) into our Terminal enum.
+   We assume that TOKEN.type holds a string such as "def", "int", etc. */
+   Terminal convertToken(TOKEN token) {
+    if (strcmp(token.lexeme, "def") == 0) return TERM_DEF;
+    else if (strcmp(token.lexeme, "fed") == 0) return TERM_FED;
+    else if (strcmp(token.lexeme, "int") == 0) return TERM_INT;
+    else if (strcmp(token.lexeme, "double") == 0) return TERM_DOUBLE;
+    else if (strcmp(token.lexeme, "if") == 0) return TERM_IF;
+    else if (strcmp(token.lexeme, "then") == 0) return TERM_THEN;
+    else if (strcmp(token.lexeme, "else") == 0) return TERM_ELSE;
+    else if (strcmp(token.lexeme, "fi") == 0) return TERM_FI;
+    else if (strcmp(token.lexeme, "while") == 0) return TERM_WHILE;
+    else if (strcmp(token.lexeme, "do") == 0) return TERM_DO;
+    else if (strcmp(token.lexeme, "od") == 0) return TERM_OD;
+    else if (strcmp(token.lexeme, "print") == 0) return TERM_PRINT;
+    else if (strcmp(token.lexeme, "return") == 0) return TERM_RETURN;
+    else if (strcmp(token.lexeme, "+") == 0) return TERM_PLUS;
+    else if (strcmp(token.lexeme, "-") == 0) return TERM_MINUS;
+    else if (strcmp(token.lexeme, "*") == 0) return TERM_MULT;
+    else if (strcmp(token.lexeme, "/") == 0) return TERM_DIV;
+    else if (strcmp(token.lexeme, "%") == 0) return TERM_MOD;
+    else if (strcmp(token.lexeme, "or") == 0) return TERM_OR;
+    else if (strcmp(token.lexeme, "and") == 0) return TERM_AND;
+    else if (strcmp(token.lexeme, "not") == 0) return TERM_NOT;
+    else if (strcmp(token.lexeme, "(") == 0) return TERM_LPAREN;
+    else if (strcmp(token.lexeme, ")") == 0) return TERM_RPAREN;
+    else if (strcmp(token.lexeme, ",") == 0) return TERM_COMMA;
+    else if (strcmp(token.lexeme, ";") == 0) return TERM_SEMICOLON;
+    else if (strcmp(token.lexeme, "[") == 0) return TERM_LBRACKET;
+    else if (strcmp(token.lexeme, "]") == 0) return TERM_RBRACKET;
+    else if (strcmp(token.lexeme, "<") == 0) return TERM_LT;
+    else if (strcmp(token.lexeme, ">") == 0) return TERM_GT;
+    else if (strcmp(token.lexeme, "==") == 0) return TERM_EQEQ;
+    else if (strcmp(token.lexeme, "<=") == 0) return TERM_LE;
+    else if (strcmp(token.lexeme, ">=") == 0) return TERM_GE;
+    else if (strcmp(token.lexeme, "<>") == 0) return TERM_NE;
+    else if (strcmp(token.lexeme, "=") == 0) return TERM_ASSIGN;
+    else if (strcmp(token.lexeme, ".") == 0) return TERM_DOT;
+    else if (strcmp(token.type, "IDENTIFIER") == 0) return TERM_ID;
+    else if (strcmp(token.type, "INTEGER") == 0) return TERM_NUMBER;
+    else if (strcmp(token.type, "DOUBLE") == 0) return TERM_NUMBER;
+    else if (strcmp(token.lexeme, "$") == 0) return TERM_EOF;
+    else {
+        fprintf(stderr, "Unknown token: %s\n", token.lexeme);
+        exit(1);
     }
-    return token_index;
 }
 
-/*F
+
+/* 
+ * Convert a token from a production string into a Symbol.
+ * Nonterminals are assumed to be enclosed in angle brackets (e.g., <expr>).
+ */
+Symbol getSymbolFromTokenString(const char *tokenStr) {
+    Symbol sym;
+    int len = strlen(tokenStr);
+    // Special case: treat "<id>" as a terminal, not a nonterminal.
+    if (strcmp(tokenStr, "<id>") == 0) {
+        sym.type = SYMBOL_TERMINAL;
+        sym.value = TERM_ID;
+        return sym;
+    }
+    
+    if(tokenStr[0] == '<' && tokenStr[len-1] == '>') {
+        sym.type = SYMBOL_NONTERMINAL;
+        if(strcmp(tokenStr, "<program>") == 0) sym.value = NT_PROGRAM;
+        else if(strcmp(tokenStr, "<fdecls_list>") == 0) sym.value = NT_FDECLS_LIST;
+        else if(strcmp(tokenStr, "<fdec>") == 0) sym.value = NT_FDEC;
+        else if(strcmp(tokenStr, "<params>") == 0) sym.value = NT_PARAMS;
+        else if(strcmp(tokenStr, "<param_list>") == 0) sym.value = NT_PARAM_LIST;
+        else if(strcmp(tokenStr, "<decl_list>") == 0) sym.value = NT_DECL_LIST;
+        else if(strcmp(tokenStr, "<decl>") == 0) sym.value = NT_DECL;
+        else if(strcmp(tokenStr, "<type>") == 0) sym.value = NT_TYPE;
+        else if(strcmp(tokenStr, "<varlist>") == 0) sym.value = NT_VARLIST;
+        else if(strcmp(tokenStr, "<varlist_tail>") == 0) sym.value = NT_VARLIST_TAIL;
+        else if(strcmp(tokenStr, "<stmt_seq>") == 0) sym.value = NT_STMT_SEQ;
+        else if(strcmp(tokenStr, "<stmt_seq_tail>") == 0) sym.value = NT_STMT_SEQ_TAIL;
+        else if(strcmp(tokenStr, "<statement>") == 0) sym.value = NT_STATEMENT;
+        else if(strcmp(tokenStr, "<if_tail>") == 0) sym.value = NT_IF_TAIL;
+        else if(strcmp(tokenStr, "<expr>") == 0) sym.value = NT_EXPR;
+        else if(strcmp(tokenStr, "<expr_prime>") == 0) sym.value = NT_EXPR_PRIME;
+        else if(strcmp(tokenStr, "<term>") == 0) sym.value = NT_TERM;
+        else if(strcmp(tokenStr, "<term_prime>") == 0) sym.value = NT_TERM_PRIME;
+        else if(strcmp(tokenStr, "<factor>") == 0) sym.value = NT_FACTOR;
+        else if(strcmp(tokenStr, "<factor_tail>") == 0) sym.value = NT_FACTOR_TAIL;
+        else if(strcmp(tokenStr, "<exprseq>") == 0) sym.value = NT_EXPRSEQ;
+        else if(strcmp(tokenStr, "<exprseq_tail>") == 0) sym.value = NT_EXPRSEQ_TAIL;
+        else if(strcmp(tokenStr, "<bexpr>") == 0) sym.value = NT_BEXPR;
+        else if(strcmp(tokenStr, "<bexpr_prime>") == 0) sym.value = NT_BEXPR_PRIME;
+        else if(strcmp(tokenStr, "<bterm>") == 0) sym.value = NT_BTERM;
+        else if(strcmp(tokenStr, "<bterm_prime>") == 0) sym.value = NT_BTERM_PRIME;
+        else if(strcmp(tokenStr, "<bfactor>") == 0) sym.value = NT_BFACTOR;
+        else if(strcmp(tokenStr, "<bfactor_inner>") == 0) sym.value = NT_BFACTOR_INNER;
+        else if(strcmp(tokenStr, "<comp>") == 0) sym.value = NT_COMP;
+        else if(strcmp(tokenStr, "<var_tail>") == 0) sym.value = NT_VAR_TAIL;
+        else {
+            fprintf(stderr, "Unknown nonterminal: %s\n", tokenStr);
+            exit(1);
+        }
+    } else {
+        sym.type = SYMBOL_TERMINAL;
+        if(strcmp(tokenStr, "def") == 0) sym.value = TERM_DEF;
+        else if(strcmp(tokenStr, "fed") == 0) sym.value = TERM_FED;
+        else if(strcmp(tokenStr, "int") == 0) sym.value = TERM_INT;
+        else if(strcmp(tokenStr, "double") == 0) sym.value = TERM_DOUBLE;
+        else if(strcmp(tokenStr, "if") == 0) sym.value = TERM_IF;
+        else if(strcmp(tokenStr, "then") == 0) sym.value = TERM_THEN;
+        else if(strcmp(tokenStr, "else") == 0) sym.value = TERM_ELSE;
+        else if(strcmp(tokenStr, "fi") == 0) sym.value = TERM_FI;
+        else if(strcmp(tokenStr, "while") == 0) sym.value = TERM_WHILE;
+        else if(strcmp(tokenStr, "do") == 0) sym.value = TERM_DO;
+        else if(strcmp(tokenStr, "od") == 0) sym.value = TERM_OD;
+        else if(strcmp(tokenStr, "print") == 0) sym.value = TERM_PRINT;
+        else if(strcmp(tokenStr, "return") == 0) sym.value = TERM_RETURN;
+        else if(strcmp(tokenStr, "+") == 0) sym.value = TERM_PLUS;
+        else if(strcmp(tokenStr, "-") == 0) sym.value = TERM_MINUS;
+        else if(strcmp(tokenStr, "*") == 0) sym.value = TERM_MULT;
+        else if(strcmp(tokenStr, "/") == 0) sym.value = TERM_DIV;
+        else if(strcmp(tokenStr, "%") == 0) sym.value = TERM_MOD;
+        else if(strcmp(tokenStr, "or") == 0) sym.value = TERM_OR;
+        else if(strcmp(tokenStr, "and") == 0) sym.value = TERM_AND;
+        else if(strcmp(tokenStr, "not") == 0) sym.value = TERM_NOT;
+        else if(strcmp(tokenStr, "(") == 0) sym.value = TERM_LPAREN;
+        else if(strcmp(tokenStr, ")") == 0) sym.value = TERM_RPAREN;
+        else if(strcmp(tokenStr, ",") == 0) sym.value = TERM_COMMA;
+        else if(strcmp(tokenStr, ";") == 0) sym.value = TERM_SEMICOLON;
+        else if(strcmp(tokenStr, "[") == 0) sym.value = TERM_LBRACKET;
+        else if(strcmp(tokenStr, "]") == 0) sym.value = TERM_RBRACKET;
+        else if(strcmp(tokenStr, "<") == 0) sym.value = TERM_LT;
+        else if(strcmp(tokenStr, ">") == 0) sym.value = TERM_GT;
+        else if(strcmp(tokenStr, "==") == 0) sym.value = TERM_EQEQ;
+        else if(strcmp(tokenStr, "<=") == 0) sym.value = TERM_LE;
+        else if(strcmp(tokenStr, ">=") == 0) sym.value = TERM_GE;
+        else if(strcmp(tokenStr, "<>") == 0) sym.value = TERM_NE;
+        else if(strcmp(tokenStr, "=") == 0) sym.value = TERM_ASSIGN;
+        else if(strcmp(tokenStr, ".") == 0) sym.value = TERM_DOT;
+        else if(strcmp(tokenStr, "number") == 0) sym.value = TERM_NUMBER;
+        else if(strcmp(tokenStr, "$") == 0) sym.value = TERM_EOF;
+        else if(strcmp(tokenStr, "<id>") == 0) sym.value = TERM_ID;
+        else {
+            fprintf(stderr, "Unknown terminal: %s\n", tokenStr);
+            exit(1);
+        }
+    }
+    return sym;
+}
+
+
+/* Helper to trim whitespace from a string */
+char *trim_whitespace(char *str) {
+    while (isspace((unsigned char)*str)) str++;
+    if (*str == 0)
+        return str;
+    char *end = str + strlen(str) - 1;
+    while (end > str && isspace((unsigned char)*end))
+        end--;
+    end[1] = '\0';
+    return str;
+}
+
+
+/* 
+ * Given a production string (with tokens separated by spaces), break it into an array of Symbols.
+ */
+#define MAX_PROD_TOKENS 50
+int parse_production(const char *production, Symbol symbols[], int max_symbols) {
+    char prod_copy[256];
+    strncpy(prod_copy, production, sizeof(prod_copy));
+    prod_copy[sizeof(prod_copy)-1] = '\0';
+    int count = 0;
+    char *token = strtok(prod_copy, " ");
+    while (token != NULL && count < max_symbols) {
+        token = trim_whitespace(token);
+        if (strlen(token) > 0) {
+            symbols[count++] = getSymbolFromTokenString(token);
+        }
+        token = strtok(NULL, " ");
+    }
+    return count;
+}
+
+/* Helper function to skip whitespace tokens */
+void skipWhitespace(TOKEN_ARRAY *tokenArray, int *ip) {
+    while (*ip < tokenArray->size &&
+          (strcmp(tokenArray->array[*ip].lexeme, " ") == 0 ||
+           strcmp(tokenArray->array[*ip].lexeme, "\t") == 0 ||
+           strcmp(tokenArray->array[*ip].lexeme, "\n") == 0)) {
+        (*ip)++;
+    }
+}
+
+
+
+
+/*
  *   Phase 2 main function
  *   Runs the syntax analyzer
  */
 
 NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
 {
-    // push initial symbol onto the stack
-    push(stack, "program");
+    //Push end-of-input marker and the start symbol (<program>) onto the stack
+    Symbol eof_sym = {SYMBOL_TERMINAL, TERM_EOF};
+    push(stack, eof_sym);
+    Symbol start_sym = {SYMBOL_NONTERMINAL, NT_PROGRAM};
+    push(stack, start_sym);
 
-    // initialize token index
-    int token_index = 0;
+    int ip = 0;
+    TOKEN current_token = tk->array[ip];
+    Terminal current_terminal = convertToken(current_token);
+    Symbol top = peek(stack);
 
-    // create the root of the AST and add starting production
-    NODE *root = createNode("Program");
-    NODE *current_ast = root;
-
-    // initilize buffer to seperate rules
-    char *production_buffer[256];
-    int temp = 0;
-
-    // while (temp < tk->size)
-    // {
-    //     printf("Temp: %d vs 102 %s\n", temp, tk->array[temp].lexeme);
-    //     temp += 1;
-    // }
-    // main loop, runs while stack has productions
-
-    while (!isEmpty(stack) && token_index < tk->size)
-    {
-
-        // get the top of stack(current production)
-        TOKEN current_token = tk->array[token_index];
-        // printf("Size of the tokens: %d\n", tk->size);
-
-        char *current_production = pop(stack);
-        // printf("popped: %s From stack Looking For: %s With Type: %s\n", current_production, current_token.lexeme, current_token.type);
-        // if (strcmp(current_production, current_token.lexeme) == 0)
-        // {
-        //     token_index = getNextToken(current_token, token_index, tk);
-        // }
-
-        // get the current token object
-        // printf("Trying to get parsing rule from LL(1) rules: %d\n", MAX_RULES);
-        for (int i = 0; i < MAX_RULES; i++)
-        {
-            // traverse the whole heap looking for the current production
-            // printf("Production found: %s\n", parsing_table[i].non_terminal);
-            if (strcmp(parsing_table[i].non_terminal, current_production) == 0) // If we've found the current production
-            {
-                // printf(" Non-terminal: %s, Production found: %s, Terminal: %s Current: %s\n", parsing_table[i].non_terminal, parsing_table[i].production, parsing_table[i].terminal, current_production);
-                if (strcmp(parsing_table[i].production, "ε") == 0) // found a terminal
-                {
-                    // printf("Terminal: %s\n", parsing_table[i].terminal);
-                    //   if(strcmp(current_token.lexeme, ""))
-                    if (strcmp(current_token.type, "DOUBLE") == 0 || strcmp(current_token.type, "INTEGER") == 0)
-                    {
-                        char temp_str[2];
-                        temp_str[0] = current_token.lexeme[0];
-                        temp_str[1] = '\0';
-                        // printf("looking at a double or an integer with char: %c\n", temp_str[0]);
-                        // printf("Comparing: %s and %s\n", parsing_table[i].terminal, temp_str);
-                        if (strcmp(parsing_table[i].terminal, temp_str) == 0)
-                        {
-                            token_index = getNextToken(current_token, token_index, tk);
-                        }
-                    }
-                    else
-                    {
-                        if (strcmp(parsing_table[i].terminal, current_token.lexeme) == 0)
-                        {
-                            token_index = getNextToken(current_token, token_index, tk);
-                        }
-                        else
-                        {
-                            // printf("Syntax Error\n");
-
-                            //   Syntax error
-                        }
-                    }
+    while(!isEmpty(stack) && top.value != 37){
+        top = peek(stack);
+        //printf("Searching for: %d\n", current_terminal);
+        //for(int x = 0; x <= stack->top; x++){
+        //   printf("IN STACK: TYPE: %d, VALUE:%d\n", stack->array[x].type, stack->array[x].value);
+        //}
+        //Found a terminal
+        if(top.type == SYMBOL_TERMINAL){
+            //check if terminal found matches current token
+            if(top.value == current_terminal){
+                pop(stack);
+                printf("Matches Terminal: %s\n", current_token.lexeme);
+                ip++;
+                skipWhitespace(tk, &ip);
+                if(ip < tk->size){
+                    current_token = tk->array[ip];
+                    current_terminal = convertToken(current_token);
+                }else{
+                    current_terminal = TERM_EOF;
                 }
-                char *strProduction = strdup(parsing_table[i].production);
-                if (strcmp(strProduction, "ε") == 0) // if we found a terminal
-                {
-                    push(stack, parsing_table[i].terminal); // add the terminal to the stack, not epsilon.
-                }
-                else
-                {
-                    reverse(strProduction);                                 // Reverse the production to ensure proper stack traversal ordering.
-                    char *formattedProduction = strtok(strProduction, " "); // Split collection of non-terminals into individual non terminals and push each of them into the stack
-                    // printf("formatted Production: %s", formattedProduction);
-                    while (formattedProduction != NULL)
-                    {
-                        // In here each production rule is split at the whitespaces, each of these productions needs to be pushed into the stack
-                        reverse(formattedProduction); // Unreverse the individual word so it pushes onto it properly
-
-                        push(stack, formattedProduction);
-                        // printf("pushing to the stack\n");
-                        //  printf("Current non-terminal: %s\n", formattedProduction);
-                        formattedProduction = strtok(NULL, " "); // Split collection of non-terminals into individual non terminals and push each of them into the stack
+            //terminal value does not match current token (syntax error)
+            }else{
+                printf("Syntax Error: expected token '%d' but found '%s'\n", top.value, current_token.lexeme);
+            }
+        //found a non-terminal
+        }else{
+            int nt = top.value;
+            int t = current_terminal;
+            const char *prod = ll1_table[nt][t].production;
+            //printf("Production: %s\n", prod);
+            if(prod == NULL){
+                pop(stack);
+            }else{
+                //printf("Applying production: %s\n", prod);
+                pop(stack);
+                if(strcmp(prod, "ε") != 0){
+                    Symbol prod_symbols[MAX_PROD_TOKENS];
+                    int count = parse_production(prod, prod_symbols, MAX_PROD_TOKENS);
+                    for(int i = count-1; i >= 0; i--){
+                        push(stack, prod_symbols[i]);
                     }
-                }
+                } 
             }
         }
-        // printf("re-run the loop\n");
 
-        // check if top of stack is terminal
-        // Overall Idea: Continue to push non terminal rules into the stack, when you pop off a rule, add the children of that rule to the stack
-        // Continue this expansion until we start to reach non-terminals. Once we hit a non terminal compare it with the current token. If it's a match then we're ready to move to the next token
-        // If not then we continue to expand the production rules and find more non-terminals which hopefully match.
-        // If the stack is empty but we've not fully explored the stack then we have a syntax error.
-        // handle top of stack is non-terminal
     }
-    printf("Done Syntax Analysis\n");
+    if (current_terminal == TERM_EOF)
+    printf("Input successfully parsed.\n");
+    else
+    printf("Syntax error: input not fully consumed.\n");
+
+    return NULL;
 }
 
 /*
