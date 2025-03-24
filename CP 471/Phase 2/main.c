@@ -1065,46 +1065,44 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
 
     while(!isEmpty(stack) && top.value != 37){
         top = peek(stack);
-        //printf("Searching for: %d\n", current_terminal);
-        //for(int x = 0; x <= stack->top; x++){
-        //   printf("IN STACK: TYPE: %d, VALUE:%d\n", stack->array[x].type, stack->array[x].value);
-        //}
-        //Found a terminal
-        if(top.type == SYMBOL_TERMINAL){
-            //check if terminal found matches current token
-            if(top.value == current_terminal){
-                pop(stack);
-                printf("Matches Terminal: %s\n", current_token.lexeme);
-                ip++;
-                skipWhitespace(tk, &ip);
-                if(ip < tk->size){
-                    current_token = tk->array[ip];
-                    current_terminal = convertToken(current_token);
-                }else{
-                    current_terminal = TERM_EOF;
-                }
-            //terminal value does not match current token (syntax error)
-            }else{
-                printf("Syntax Error: expected token '%d' but found '%s'\n", top.value, current_token.lexeme);
-            }
-        //found a non-terminal
-        }else{
-            int nt = top.value;
-            int t = current_terminal;
-            const char *prod = ll1_table[nt][t].production;
-            //printf("Production: %s\n", prod);
-            if(prod == NULL){
-                pop(stack);
-            }else{
-                //printf("Applying production: %s\n", prod);
-                pop(stack);
-                if(strcmp(prod, "ε") != 0){
-                    Symbol prod_symbols[MAX_PROD_TOKENS];
-                    int count = parse_production(prod, prod_symbols, MAX_PROD_TOKENS);
-                    for(int i = count-1; i >= 0; i--){
-                        push(stack, prod_symbols[i]);
+        if(top.value != 37){
+            //Found a terminal
+            if(top.type == SYMBOL_TERMINAL){
+                //check if terminal found matches current token
+                if(top.value == current_terminal){
+                    pop(stack);
+                    printf("Matches Terminal: %s\n", current_token.lexeme);
+                    ip++;
+                    skipWhitespace(tk, &ip);
+                    if(ip < tk->size){
+                        current_token = tk->array[ip];
+                        current_terminal = convertToken(current_token);
+                    }else{
+                        current_terminal = TERM_EOF;
                     }
-                } 
+                //terminal value does not match current token (syntax error)
+                }else{
+                    printf("Syntax Error: expected token '%d' but found '%s'\n", top.value, current_token.lexeme);
+                }
+            //found a non-terminal
+            }else{
+                int nt = top.value;
+                int t = current_terminal;
+                const char *prod = ll1_table[nt][t].production;
+                //printf("Production: %s\n", prod);
+                if(prod == NULL){
+                    pop(stack);
+                }else{
+                    //printf("Applying production: %s\n", prod);
+                    pop(stack);
+                    if(strcmp(prod, "ε") != 0){
+                        Symbol prod_symbols[MAX_PROD_TOKENS];
+                        int count = parse_production(prod, prod_symbols, MAX_PROD_TOKENS);
+                        for(int i = count-1; i >= 0; i--){
+                            push(stack, prod_symbols[i]);
+                        }
+                    } 
+                }
             }
         }
 
