@@ -412,6 +412,7 @@ TOKEN_ARRAY *LexicalAnalysis(char *filename)
     int cline = 1;
     int state = 0;
     int previous_state = 0;
+    int error = 0; // 0 = false 1 = true
 
     // Initialize the buffer
     DOUBLE_BUFFER *db = initializeBuffer(filename);
@@ -440,12 +441,12 @@ TOKEN_ARRAY *LexicalAnalysis(char *filename)
         // Handle invalid characters
         if (state == -1)
         {
-            FILE *errorFile = fopen("./tokenError.txt", "w");
+            FILE *errorFile = fopen("./errors.txt", "a");
             fprintf(errorFile, "Invalid character:%c, on line %d\n", c, cline);
+            error = 1;
             fclose(errorFile);
             previous_state = state;
             state = 0;
-
             // Handle end of token
         }
         if (state == 0)
@@ -462,6 +463,7 @@ TOKEN_ARRAY *LexicalAnalysis(char *filename)
             if (compareStrings(tokenType, "UNKNOWN"))
             {
                 printf("Unknown Token Type found on line %d\n", cline);
+                error = 1;
             }
 
             // Create new token and add it to the token array
@@ -481,7 +483,15 @@ TOKEN_ARRAY *LexicalAnalysis(char *filename)
             }
 
             // Add token to array
-            addToken(tk, token);
+            if (error == 0) // Do not add to token array if there is a invalid character of any kind
+            {
+                addToken(tk, token);
+                printf("Adding token to array: %s\n", token.lexeme);
+            }
+            else
+            {
+                error = 0; // reset errror detection
+            }
             tempPos = 0; // Reset the buffer after reading a token
         }
     }
@@ -1035,6 +1045,7 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                     {
                         current_token = tk->array[ip];
                         current_terminal = convertToken(current_token);
+                        // printf("New token: %s", current_token.lexeme);
                     }
                     else
                     {
@@ -1044,13 +1055,17 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                 }
                 else
                 {
-                    printf("Syntax Error: expected token '%d' but found '%s Current Terminal %d'\n", top.value, current_token.lexeme, current_terminal);
+                    // printf("Syntax Error: expected token '%d' but found '%s Current Terminal %d'\n", top.value, current_token.lexeme, current_terminal);
+                    FILE *errorFile = fopen("./errors.txt", "a");
+                    fprintf(errorFile, "Syntax Error: expected token '%d' but found '%s Current Terminal %d'\n", top.value, current_token.lexeme, current_terminal);
+                    fclose(errorFile);
                     ip = ip + 1;
                     skipWhitespace(tk, &ip);
                     // printf("Ip incremented\n");
                     current_token = tk->array[ip];
                     // printf("Current token changed to: %s\n", current_token.lexeme);
                     current_terminal = convertToken(current_token);
+                    // printf("New token: %s", current_token.lexeme);
                 }
                 // found a non-terminal
             }
@@ -1094,7 +1109,9 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
  */
 int main()
 {
-
+    FILE *errorFile = fopen("./errors.txt", "w");
+    fprintf(errorFile, ""); // Wipe the error File
+    fclose(errorFile);
     TOKEN_ARRAY *tk = LexicalAnalysis("Test1.cp");
     STACK *stack = malloc(sizeof(STACK));
     printf("init stack\n");
