@@ -486,10 +486,11 @@ TOKEN_ARRAY *LexicalAnalysis(char *filename)
             if (error == 0) // Do not add to token array if there is a invalid character of any kind
             {
                 addToken(tk, token);
-                printf("Adding token to array: %s\n", token.lexeme);
+                // printf("Adding token to array: %s\n", token.lexeme);
             }
             else
             {
+                addToken(tk, token);
                 error = 0; // reset errror detection
             }
             tempPos = 0; // Reset the buffer after reading a token
@@ -1013,7 +1014,7 @@ void skipWhitespace(TOKEN_ARRAY *tokenArray, int *ip)
  *   Runs the syntax analyzer
  */
 
-NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
+void SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
 {
     // Push end-of-input marker and the start symbol (<program>) onto the stack
     Symbol eof_sym = {SYMBOL_TERMINAL, TERM_EOF};
@@ -1100,8 +1101,6 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
         printf("Input successfully parsed.\n");
     else
         printf("Syntax error: input not fully consumed.\n");
-
-    return NULL;
 }
 
 /*
@@ -1116,5 +1115,5 @@ int main()
     STACK *stack = malloc(sizeof(STACK));
     printf("init stack\n");
     initializeStack(stack);
-    NODE *ast_root = SyntaxAnalysis(tk, stack);
+    SyntaxAnalysis(tk, stack);
 }

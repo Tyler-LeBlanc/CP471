@@ -1,10 +1,27 @@
-int x,i;
-double z,u;
-x=0;i=1;
-while(i<10) do $
-	x = x+i*i; i=i+1
-od;
-if(z < u)then
-fi;
+def int gcd(int a, int b)
+int r;
+if a<0 then a = -a fi;
+if b<0 then b = -b fi;
 
-print(x);.
+if a<b then r=a; a=b; b=r fi;
+while (b<>0) do
+	r = a % b;
+	a=b;
+	b=r;
+od;
+return(a)
+fed;
+
+int x,y,z;
+x=12; y=15;
+
+z=gcd(x,y);
+print(z);
+
+z=gcd(x+y, y);
+print(z);
+
+
+z=gcd(x+y, x);
+print(z)
+.
