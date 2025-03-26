@@ -1298,7 +1298,7 @@ int main()
     FILE *errorFile = fopen("./errors.txt", "w");
     fprintf(errorFile, ""); // Wipe the error File
     fclose(errorFile);
-    TOKEN_ARRAY *tk = LexicalAnalysis("Test1.cp");
+    TOKEN_ARRAY *tk = LexicalAnalysis("Test4.cp");
     STACK *stack = malloc(sizeof(STACK));
     printf("init stack\n");
     initializeStack(stack);
