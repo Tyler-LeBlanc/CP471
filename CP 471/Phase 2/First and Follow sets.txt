@@ -1,0 +1,134 @@
+FOLLOW Sets
+
+FIRST(<program>) = { def, int, double, letter, if, while, print, return, ;, ε, . }
+
+FIRST(<fdecls_list>) = { def, ε }
+
+FIRST(<fdec>) = { def }
+
+FIRST(<params>) = { int, double } ∪ { ε }
+
+FIRST(<param_list>) = { ,, ε }
+
+FIRST(<fname>) = FIRST(<id>) = { letter }
+
+FIRST(<decl_list>) = { int, double, ε }
+
+FIRST(<decl>) = FIRST(<type>) = { int, double }
+
+FIRST(<type>) = { int, double }
+
+FIRST(<varlist>) = FIRST(<id>) = { letter }
+
+FIRST(<varlist_tail>) = { ,, ε }
+
+FIRST(<stmt_seq>) = FIRST(<statement>) = { letter, if, while, print, return, ;, ε }
+
+FIRST(<stmt_seq_tail>) = { ;, ε }
+
+FIRST(<statement>) = { letter, if, while, print, return, ε }
+
+FIRST(<if_tail>) = { fi, else }
+
+FIRST(<expr>) = FIRST(<term>) = FIRST(<factor>) = { letter, digit, ( }
+
+FIRST(<expr_prime>) = { +, -, ε }
+
+FIRST(<term>) = { letter, digit, ( }
+
+<term_prime>: FIRST(<term_prime>) = { *, /, %, ε }
+
+<factor>: FIRST(<factor>) = { letter, digit, ( }
+
+<exprseq>: FIRST(<exprseq>) = { letter, digit, (, ε }
+
+<exprseq_tail>: FIRST(<exprseq_tail>) = { ,, ε }
+
+FIRST(<bexpr>) = FIRST(<bterm>) = FIRST(<bfactor>) = { (, not }
+
+FIRST(<bexpr_prime>) = { or, ε }
+
+FIRST(<bterm>) = { (, not }
+
+FIRST(<bterm_prime>) = { and, ε }
+
+FIRST(<bfactor>) = { (, not }
+
+FIRST(<bfactor_inner>) = { (, not, letter, digit }
+
+FIRST(<comp>) = { <, >, ==, <=, >=, <> }
+
+FIRST(<var>) = FIRST(<id>) = { letter }
+
+FIRST(<var_tail>) = { [ , ε }
+
+FIRST(<id>) = { letter }
+
+FIRST(<id_tail>) = { letter, digit, ε }
+
+FIRST(<letter>) = { a, b, c, …, z }
+
+FIRST(<digit>) = { 0, 1, 2, …, 9 }
+
+FIRST(<number>) = { digit }
+
+
+FOLLOW Sets
+
+FOLLOW(<program>) = { $ }
+
+FOLLOW(<fdecls_list>) ≈ { int, double, letter, if, while, print, return, ;, . }
+
+FOLLOW(<fdec>) = { ; }
+
+FOLLOW(<params>) = { ) }
+
+FOLLOW(<param_list>) = { ) }
+
+FOLLOW(<fname>) = { ( }
+
+FOLLOW(<decl>) = { ; }
+
+FOLLOW(<varlist>) = { ;, , }
+
+FOLLOW(<stmt_seq>) = { fi, ., ;, od }
+
+FOLLOW(<statement>) = { ;, fi, ., od }
+
+FOLLOW(<if_tail>) = FOLLOW(<statement>) = { ;, fi, ., od }
+
+FOLLOW(<expr>) = { +, -, ), ,, ;, fi, ., <, >, ==, <=, >=, <> }
+
+FOLLOW(<term>) = { +, -, ), ,, ;, fi, ., <, >, ==, <=, >=, <> }
+
+FOLLOW(<factor>) = { *, /, %, +, -, ), ,, ;, fi, ., <, >, ==, <=, >=, <> }
+
+FOLLOW(<expr_prime>) = FOLLOW(<expr>)
+
+FOLLOW(<term_prime>) = FOLLOW(<term>)
+
+FOLLOW(<exprseq>) = { ) }
+
+FOLLOW(<exprseq_tail>) = { ) }
+
+FOLLOW(<bexpr>) = { then, ) }
+
+FOLLOW(<bexpr_prime>) = { then, ) }
+
+FOLLOW(<bterm>) = { or, then, ) }
+
+FOLLOW(<bterm_prime>) = { or, then, ) }
+
+FOLLOW(<bfactor>) = { and, or, then, ) }
+
+FOLLOW(<bfactor_inner>) = { ) }
+
+FOLLOW(<comp>) = { letter, digit, ( }
+
+FOLLOW(<var>) = { =, [, ,, ], ;, ) }
+
+FOLLOW(<var_tail>) = { =, [, ,, ], ;, ) }
+
+FOLLOW(<id>) = { [, =, (, ,, ], ;, ) }
+
+FOLLOW(<id_tail>) = { [, =, (, ,, ], ;, ) }

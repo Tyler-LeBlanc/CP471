@@ -1,0 +1,62 @@
+1.  <program>      → <fdecls_list> <decl_list> <stmt_seq>  .
+ 
+2.  <fdecls_list>  → <fdec> ; <fdecls_list> | ε
+
+3.  <fdec>         → def <type> <fname> ( <params> ) <decl_list> <stmt_seq> fed
+
+4.  <params>       → <type> <var> <param_list> | ε
+5.  <param_list>   → , <type> <var> <param_list> | ε
+
+6.  <fname>        → <id>
+
+7.  <decl_list>    → <decl> ; <decl_list> | ε
+8.  <decl>         → <type> <varlist>
+9.  <type>         → int | double
+
+10. <varlist>      → <var> <varlist_tail>
+11. <varlist_tail> → , <var> <varlist_tail> | ε
+
+12. <stmt_seq>     → <statement> <stmt_seq_tail>
+13. <stmt_seq_tail>→ ; <statement> <stmt_seq_tail> | ε
+
+14. <statement>    → <var> = <expr>
+                   | if <bexpr> then <stmt_seq> <if_tail>
+                   | while <bexpr> do <stmt_seq> od
+                   | print <expr>
+                   | return <expr>
+                   | ε
+15. <if_tail>      → fi | else <stmt_seq> fi
+
+16. <expr>         → <term> <expr_prime>
+17. <expr_prime>   → + <term> <expr_prime> | - <term> <expr_prime> | ε
+
+18. <term>         → <factor> <term_prime>
+19. <term_prime>   → * <factor> <term_prime> | / <factor> <term_prime> | % <factor> <term_prime> | ε
+
+20. <factor>       → <var>
+                   | <number>
+                   | ( <expr> )
+                   | <fname> ( <exprseq> )
+
+21. <exprseq>      → <expr> <exprseq_tail> | ε
+22. <exprseq_tail> → , <expr> <exprseq_tail> | ε
+
+23. <bexpr>        → <bterm> <bexpr_prime>
+24. <bexpr_prime>  → or <bterm> <bexpr_prime> | ε
+
+25. <bterm>        → <bfactor> <bterm_prime>
+26. <bterm_prime>  → and <bfactor> <bterm_prime> | ε
+
+27. <bfactor>      → ( <bfactor_inner> ) | not <bfactor>
+28. <bfactor_inner>→ <bexpr> | <expr> <comp> <expr>
+29. <comp>         → < | > | == | <= | >= | <>
+
+30. <var>          → <id> <var_tail>
+31. <var_tail>     → [ <expr> ] | ε
+
+32. <id>           → <letter> <id_tail>
+33. <id_tail>      → <letter> <id_tail> | <digit> <id_tail> | ε
+34. <letter>       → a | b | c | … | z
+35. <digit>        → 0 | 1 | 2 | … | 9
+
+36. <number>       → <integer> | <double> …
