@@ -70,6 +70,7 @@ typedef enum
     TERM_ID,        // identifier (a–z,...)
     TERM_NUMBER,    // numeric literal
     TERM_EOF,       // end-of-input marker
+    TERM_EP,
     NUM_TERMINALS
 } Terminal;
 

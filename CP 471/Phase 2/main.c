@@ -535,29 +535,92 @@ ParseTableEntry ll1_table[NUM_NONTERMINALS][NUM_TERMINALS] = {
         [TERM_IF] = {"<fdecls_list> <decl_list> <stmt_seq> ."},
         [TERM_WHILE] = {"<fdecls_list> <decl_list> <stmt_seq> ."},
         [TERM_PRINT] = {"<fdecls_list> <decl_list> <stmt_seq> ."},
-        [TERM_RETURN] = {"<fdecls_list> <decl_list> <stmt_seq> ."}},
+        [TERM_RETURN] = {"<fdecls_list> <decl_list> <stmt_seq> ."}
+    },
     /* NT_FDECLS_LIST: → <fdec> ; <fdecls_list> | ε */
-    [NT_FDECLS_LIST] = {[TERM_DEF] = {"<fdec> ; <fdecls_list>"}, [TERM_INT] = {"ε"}, [TERM_DOUBLE] = {"ε"}, [TERM_ID] = {"ε"}, [TERM_IF] = {"ε"}, [TERM_WHILE] = {"ε"}, [TERM_PRINT] = {"ε"}, [TERM_RETURN] = {"ε"}, [TERM_DOT] = {"ε"}},
+    [NT_FDECLS_LIST] = {
+        [TERM_DEF] = {"<fdec> ; <fdecls_list>"}, 
+        [TERM_INT] = {"ε"}, 
+        [TERM_DOUBLE] = {"ε"}, 
+        [TERM_ID] = {"ε"}, 
+        [TERM_IF] = {"ε"}, 
+        [TERM_WHILE] = {"ε"}, 
+        [TERM_PRINT] = {"ε"}, 
+        [TERM_RETURN] = {"ε"}, 
+        [TERM_DOT] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_FDEC: def <type> <id> ( <params> ) <decl_list> <stmt_seq> fed */
-    [NT_FDEC] = {[TERM_DEF] = {"def <type> <id> ( <params> ) <decl_list> <stmt_seq> fed"}},
+    [NT_FDEC] = {
+        [TERM_DEF] = {"def <type> <id> ( <params> ) <decl_list> <stmt_seq> fed"}
+    },
     /* NT_PARAMS: → <type> <id> <param_list> | ε */
-    [NT_PARAMS] = {[TERM_INT] = {"<type> <id> <param_list>"}, [TERM_DOUBLE] = {"<type> <id> <param_list>"}, [TERM_RPAREN] = {"ε"}},
+    [NT_PARAMS] = {
+        [TERM_INT] = {"<type> <id> <param_list>"}, 
+        [TERM_DOUBLE] = {"<type> <id> <param_list>"}, 
+        [TERM_RPAREN] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_PARAM_LIST: → , <type> <id> <param_list> | ε */
-    [NT_PARAM_LIST] = {[TERM_COMMA] = {", <type> <id> <param_list>"}, [TERM_RPAREN] = {"ε"}},
+    [NT_PARAM_LIST] = {
+        [TERM_COMMA] = {", <type> <id> <param_list>"}, 
+        [TERM_RPAREN] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_DECL_LIST: → <decl> ; <decl_list> | ε */
-    [NT_DECL_LIST] = {[TERM_INT] = {"<decl> ; <decl_list>"}, [TERM_DOUBLE] = {"<decl> ; <decl_list>"}, [TERM_IF] = {"ε"}, [TERM_WHILE] = {"ε"}, [TERM_PRINT] = {"ε"}, [TERM_RETURN] = {"ε"}, [TERM_DOT] = {"ε"}, [TERM_ID] = {"ε"}},
+    [NT_DECL_LIST] = {
+        [TERM_INT] = {"<decl> ; <decl_list>"}, 
+        [TERM_DOUBLE] = {"<decl> ; <decl_list>"}, 
+        [TERM_IF] = {"ε"}, 
+        [TERM_WHILE] = {"ε"}, 
+        [TERM_PRINT] = {"ε"}, 
+        [TERM_RETURN] = {"ε"}, 
+        [TERM_DOT] = {"ε"}, 
+        [TERM_ID] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_DECL: → <type> <varlist> */
-    [NT_DECL] = {[TERM_INT] = {"<type> <varlist>"}, [TERM_DOUBLE] = {"<type> <varlist>"}},
+    [NT_DECL] = {
+        [TERM_INT] = {"<type> <varlist>"}, 
+        [TERM_DOUBLE] = {"<type> <varlist>"}
+    },
     /* NT_TYPE: → int | double */
-    [NT_TYPE] = {[TERM_INT] = {"int"}, [TERM_DOUBLE] = {"double"}},
+    [NT_TYPE] = {
+        [TERM_INT] = {"int"}, 
+        [TERM_DOUBLE] = {"double"}
+    },
     /* NT_VARLIST: → <id> <varlist_tail> */
-    [NT_VARLIST] = {[TERM_ID] = {"<id> <varlist_tail>"}},
+    [NT_VARLIST] = {
+        [TERM_ID] = {"<id> <varlist_tail>"}
+    },
     /* NT_VARLIST_TAIL: → , <id> <varlist_tail> | ε */
-    [NT_VARLIST_TAIL] = {[TERM_COMMA] = {", <id> <varlist_tail>"}, [TERM_SEMICOLON] = {"ε"}, [TERM_RPAREN] = {"ε"}, [TERM_DOT] = {"ε"}},
+    [NT_VARLIST_TAIL] = {
+        [TERM_COMMA] = {", <id> <varlist_tail>"},
+        [TERM_SEMICOLON] = {"ε"}, 
+        [TERM_RPAREN] = {"ε"}, 
+        [TERM_DOT] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_STMT_SEQ: → <statement> <stmt_seq_tail> */
-    [NT_STMT_SEQ] = {[TERM_ID] = {"<statement> <stmt_seq_tail>"}, [TERM_IF] = {"<statement> <stmt_seq_tail>"}, [TERM_WHILE] = {"<statement> <stmt_seq_tail>"}, [TERM_PRINT] = {"<statement> <stmt_seq_tail>"}, [TERM_RETURN] = {"<statement> <stmt_seq_tail>"}, [TERM_FI] = {"ε"}, [TERM_OD] = {"ε"}, [TERM_DOT] = {"ε"}},
+    [NT_STMT_SEQ] = {
+        [TERM_ID] = {"<statement> <stmt_seq_tail>"},
+        [TERM_IF] = {"<statement> <stmt_seq_tail>"}, 
+        [TERM_WHILE] = {"<statement> <stmt_seq_tail>"}, 
+        [TERM_PRINT] = {"<statement> <stmt_seq_tail>"}, 
+        [TERM_RETURN] = {"<statement> <stmt_seq_tail>"}, 
+        [TERM_FI] = {"ε"}, 
+        [TERM_OD] = {"ε"}, 
+        [TERM_DOT] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_STMT_SEQ_TAIL: → ; <statement> <stmt_seq_tail> | ε */
-    [NT_STMT_SEQ_TAIL] = {[TERM_SEMICOLON] = {"; <statement> <stmt_seq_tail>"}, [TERM_FI] = {"ε"}, [TERM_OD] = {"ε"}, [TERM_DOT] = {"ε"}},
+    [NT_STMT_SEQ_TAIL] = {
+        [TERM_SEMICOLON] = {"; <statement> <stmt_seq_tail>"}, 
+        [TERM_FI] = {"ε"}, 
+        [TERM_OD] = {"ε"}, 
+        [TERM_DOT] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_STATEMENT:
          → <id> <var_tail> = <expr>
          | if <bexpr> then <stmt_seq> <if_tail>
@@ -566,62 +629,171 @@ ParseTableEntry ll1_table[NUM_NONTERMINALS][NUM_TERMINALS] = {
          | return <expr>
          | ε
     */
-    [NT_STATEMENT] = {[TERM_ID] = {"<id> <var_tail> = <expr>"}, [TERM_IF] = {"if <bexpr> then <stmt_seq> <if_tail>"}, [TERM_WHILE] = {"while <bexpr> do <stmt_seq> od"}, [TERM_PRINT] = {"print <expr>"}, [TERM_RETURN] = {"return <expr>"}, [TERM_SEMICOLON] = {"ε"}, [TERM_FI] = {"ε"}, [TERM_OD] = {"ε"}, [TERM_DOT] = {"ε"}},
+    [NT_STATEMENT] = {
+        [TERM_ID] = {"<id> <var_tail> = <expr>"}, 
+        [TERM_IF] = {"if <bexpr> then <stmt_seq> <if_tail>"}, 
+        [TERM_WHILE] = {"while <bexpr> do <stmt_seq> od"}, 
+        [TERM_PRINT] = {"print <expr>"}, 
+        [TERM_RETURN] = {"return <expr>"}, 
+        [TERM_SEMICOLON] = {"ε"}, 
+        [TERM_FI] = {"ε"}, 
+        [TERM_OD] = {"ε"}, 
+        [TERM_DOT] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_IF_TAIL: → fi | else <stmt_seq> fi */
-    [NT_IF_TAIL] = {[TERM_FI] = {"fi"}, [TERM_ELSE] = {"else <stmt_seq> fi"}},
+    [NT_IF_TAIL] = {
+        [TERM_FI] = {"fi"}, 
+        [TERM_ELSE] = {"else <stmt_seq> fi"}
+    },
     /* NT_EXPR: → <term> <expr_prime> */
-    [NT_EXPR] = {[TERM_ID] = {"<term> <expr_prime>"}, [TERM_NUMBER] = {"<term> <expr_prime>"}, [TERM_LPAREN] = {"<term> <expr_prime>"}},
+    [NT_EXPR] = {
+        [TERM_ID] = {"<term> <expr_prime>"},
+        [TERM_NUMBER] = {"<term> <expr_prime>"}, 
+        [TERM_LPAREN] = {"<term> <expr_prime>"}
+    },
     /* NT_EXPR_PRIME: → + <term> <expr_prime> | - <term> <expr_prime> | ε */
-    [NT_EXPR_PRIME] = {[TERM_PLUS] = {"+ <term> <expr_prime>"}, [TERM_MINUS] = {"- <term> <expr_prime>"}, [TERM_RPAREN] = {"ε"}, [TERM_COMMA] = {"ε"}, [TERM_SEMICOLON] = {"ε"}, [TERM_FI] = {"ε"}, [TERM_DOT] = {"ε"}, [TERM_LT] = {"ε"}},
+    [NT_EXPR_PRIME] = {
+        [TERM_PLUS] = {"+ <term> <expr_prime>"}, 
+        [TERM_MINUS] = {"- <term> <expr_prime>"}, 
+        [TERM_RPAREN] = {"ε"}, 
+        [TERM_COMMA] = {"ε"}, 
+        [TERM_SEMICOLON] = {"ε"}, 
+        [TERM_FI] = {"ε"}, 
+        [TERM_DOT] = {"ε"}, 
+        [TERM_LT] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_TERM: → <factor> <term_prime> */
-    [NT_TERM] = {[TERM_ID] = {"<factor> <term_prime>"}, [TERM_NUMBER] = {"<factor> <term_prime>"}, [TERM_LPAREN] = {"<factor> <term_prime>"}},
+    [NT_TERM] = {
+        [TERM_ID] = {"<factor> <term_prime>"}, 
+        [TERM_NUMBER] = {"<factor> <term_prime>"}, 
+        [TERM_LPAREN] = {"<factor> <term_prime>"}
+    },
     /* NT_TERM_PRIME: → * <factor> <term_prime>
                         | / <factor> <term_prime>
                         | % <factor> <term_prime>
                         | ε
     */
-    [NT_TERM_PRIME] = {[TERM_MULT] = {"* <factor> <term_prime>"}, [TERM_DIV] = {"/ <factor> <term_prime>"}, [TERM_MOD] = {"% <factor> <term_prime>"}, [TERM_PLUS] = {"ε"}, [TERM_MINUS] = {"ε"}, [TERM_RPAREN] = {"ε"}, [TERM_COMMA] = {"ε"}, [TERM_SEMICOLON] = {"ε"}, [TERM_FI] = {"ε"}, [TERM_DOT] = {"ε"}, [TERM_LT] = {"ε"}},
+    [NT_TERM_PRIME] = {
+        [TERM_MULT] = {"* <factor> <term_prime>"}, 
+        [TERM_DIV] = {"/ <factor> <term_prime>"}, 
+        [TERM_MOD] = {"% <factor> <term_prime>"}, 
+        [TERM_PLUS] = {"ε"},
+        [TERM_MINUS] = {"ε"}, 
+        [TERM_RPAREN] = {"ε"}, 
+        [TERM_COMMA] = {"ε"}, 
+        [TERM_SEMICOLON] = {"ε"}, 
+        [TERM_FI] = {"ε"}, 
+        [TERM_DOT] = {"ε"}, 
+        [TERM_LT] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_FACTOR:
          → <id> <factor_tail> | <number> | ( <expr> )
     */
-    [NT_FACTOR] = {[TERM_ID] = {"<id> <factor_tail>"}, [TERM_NUMBER] = {"number"}, [TERM_LPAREN] = {"( <expr> )"}},
+    [NT_FACTOR] = {
+        [TERM_ID] = {"<id> <factor_tail>"}, 
+        [TERM_NUMBER] = {"number"}, 
+        [TERM_LPAREN] = {"( <expr> )"}
+    },
     /* NT_FACTOR_TAIL:
          → ( <exprseq> ) | <var_tail>
          (If a '(' follows an identifier then it’s a function call;
           otherwise use the variable’s tail production.)
     */
-    [NT_FACTOR_TAIL] = {[TERM_LPAREN] = {"( <exprseq> )"}, [TERM_LBRACKET] = {"<var_tail>"}, [TERM_PLUS] = {"<var_tail>"}, [TERM_MINUS] = {"<var_tail>"}, [TERM_MULT] = {"<var_tail>"}, [TERM_DIV] = {"<var_tail>"}, [TERM_MOD] = {"<var_tail>"}, [TERM_RPAREN] = {"ε"}, [TERM_COMMA] = {"ε"}, [TERM_SEMICOLON] = {"ε"}, [TERM_FI] = {"ε"}, [TERM_DOT] = {"ε"}, [TERM_LT] = {"ε"}},
+    [NT_FACTOR_TAIL] = {
+        [TERM_LPAREN] = {"( <exprseq> )"}, 
+        [TERM_LBRACKET] = {"<var_tail>"}, 
+        [TERM_PLUS] = {"<var_tail>"}, 
+        [TERM_MINUS] = {"<var_tail>"}, 
+        [TERM_MULT] = {"<var_tail>"}, 
+        [TERM_DIV] = {"<var_tail>"}, 
+        [TERM_MOD] = {"<var_tail>"}, 
+        [TERM_RPAREN] = {"ε"}, 
+        [TERM_COMMA] = {"ε"}, 
+        [TERM_SEMICOLON] = {"ε"}, 
+        [TERM_FI] = {"ε"}, 
+        [TERM_DOT] = {"ε"}, 
+        [TERM_LT] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_EXPRSEQ: → <expr> <exprseq_tail> | ε */
-    [NT_EXPRSEQ] = {[TERM_ID] = {"<expr> <exprseq_tail>"}, [TERM_NUMBER] = {"<expr> <exprseq_tail>"}, [TERM_LPAREN] = {"<expr> <exprseq_tail>"}, [TERM_RPAREN] = {"ε"}},
+    [NT_EXPRSEQ] = {
+        [TERM_ID] = {"<expr> <exprseq_tail>"}, 
+        [TERM_NUMBER] = {"<expr> <exprseq_tail>"}, 
+        [TERM_LPAREN] = {"<expr> <exprseq_tail>"}, 
+        [TERM_RPAREN] = {"ε"}
+    },
     /* NT_EXPRSEQ_TAIL: → , <expr> <exprseq_tail> | ε */
-    [NT_EXPRSEQ_TAIL] = {[TERM_COMMA] = {", <expr> <exprseq_tail>"}, [TERM_RPAREN] = {"ε"}},
+    [NT_EXPRSEQ_TAIL] = {
+        [TERM_COMMA] = {", <expr> <exprseq_tail>"}, 
+        [TERM_RPAREN] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_BEXPR: → <bterm> <bexpr_prime> */
-    [NT_BEXPR] = {[TERM_LPAREN] = {"<bterm> <bexpr_prime>"}, [TERM_NOT] = {"<bterm> <bexpr_prime>"}},
+    [NT_BEXPR] = {
+        [TERM_LPAREN] = {"<bterm> <bexpr_prime>"}, 
+        [TERM_NOT] = {"<bterm> <bexpr_prime>"}
+    },
     /* NT_BEXPR_PRIME: → or <bterm> <bexpr_prime> | ε */
-    [NT_BEXPR_PRIME] = {[TERM_OR] = {"or <bterm> <bexpr_prime>"}, [TERM_THEN] = {"ε"}, [TERM_RPAREN] = {"ε"}},
+    [NT_BEXPR_PRIME] = {
+        [TERM_OR] = {"or <bterm> <bexpr_prime>"}, 
+        [TERM_THEN] = {"ε"}, 
+        [TERM_RPAREN] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_BTERM: → <bfactor> <bterm_prime> */
-    [NT_BTERM] = {[TERM_LPAREN] = {"<bfactor> <bterm_prime>"}, [TERM_NOT] = {"<bfactor> <bterm_prime>"}},
+    [NT_BTERM] = {
+        [TERM_LPAREN] = {"<bfactor> <bterm_prime>"}, 
+        [TERM_NOT] = {"<bfactor> <bterm_prime>"}
+    },
     /* NT_BTERM_PRIME: → and <bfactor> <bterm_prime> | ε */
-    [NT_BTERM_PRIME] = {[TERM_AND] = {"and <bfactor> <bterm_prime>"}, [TERM_OR] = {"ε"}, [TERM_THEN] = {"ε"}, [TERM_RPAREN] = {"ε"}},
+    [NT_BTERM_PRIME] = {
+        [TERM_AND] = {"and <bfactor> <bterm_prime>"}, 
+        [TERM_OR] = {"ε"}, 
+        [TERM_THEN] = {"ε"},
+        [TERM_RPAREN] = {"ε"},
+        [TERM_EP] = {"ε"}
+    },
     /* NT_BFACTOR: → ( <bfactor_inner> ) | not <bfactor> */
-    [NT_BFACTOR] = {[TERM_LPAREN] = {"( <bfactor_inner> )"}, [TERM_NOT] = {"not <bfactor>"}},
+    [NT_BFACTOR] = {
+        [TERM_LPAREN] = {"( <bfactor_inner> )"}, 
+        [TERM_NOT] = {"not <bfactor>"},
+    },
     /* NT_BFACTOR_INNER: → <expr> <comp> <expr> */
-    [NT_BFACTOR_INNER] = {[TERM_LPAREN] = {"<expr> <comp> <expr>"}, [TERM_ID] = {"<expr> <comp> <expr>"}, [TERM_NUMBER] = {"<expr> <comp> <expr>"}},
+    [NT_BFACTOR_INNER] = {
+        [TERM_LPAREN] = {"<expr> <comp> <expr>"}, 
+        [TERM_ID] = {"<expr> <comp> <expr>"}, 
+        [TERM_NUMBER] = {"<expr> <comp> <expr>"}
+    },
     /* NT_COMP: → < | > | == | <= | >= | <> */
-    [NT_COMP] = {[TERM_LT] = {"<"}, [TERM_GT] = {">"}, [TERM_EQEQ] = {"=="}, [TERM_LE] = {"<="}, [TERM_GE] = {">="}, [TERM_NE] = {"<>"}},
+    [NT_COMP] = {
+        [TERM_LT] = {"<"}, 
+        [TERM_GT] = {">"}, 
+        [TERM_EQEQ] = {"=="}, 
+        [TERM_LE] = {"<="}, 
+        [TERM_GE] = {">="}, 
+        [TERM_NE] = {"<>"}
+    },
     /* NT_VAR_TAIL: → [ <expr> ] | ε */
-    [NT_VAR_TAIL] = {[TERM_LBRACKET] = {"[ <expr> ]"}, [TERM_PLUS] = {"ε"}, [TERM_MINUS] = {"ε"}, [TERM_MULT] = {"ε"}, [TERM_DIV] = {"ε"}, [TERM_MOD] = {"ε"}, [TERM_RPAREN] = {"ε"}, [TERM_COMMA] = {"ε"}, [TERM_SEMICOLON] = {"ε"}, [TERM_FI] = {"ε"}, [TERM_DOT] = {"ε"}, [TERM_ASSIGN] = {"ε"}}};
-
-void reverse(char *str)
-{
-    int len = strlen(str);
-    for (int i = 0; i < len / 2; i++)
-    {
-        char temp = str[i];
-        str[i] = str[len - i - 1];
-        str[len - i - 1] = temp;
+    [NT_VAR_TAIL] = {
+        [TERM_LBRACKET] = {"[ <expr> ]"}, 
+        [TERM_PLUS] = {"ε"}, 
+        [TERM_MINUS] = {"ε"}, 
+        [TERM_MULT] = {"ε"}, 
+        [TERM_DIV] = {"ε"}, 
+        [TERM_MOD] = {"ε"}, 
+        [TERM_RPAREN] = {"ε"}, 
+        [TERM_COMMA] = {"ε"}, 
+        [TERM_SEMICOLON] = {"ε"}, 
+        [TERM_FI] = {"ε"}, 
+        [TERM_DOT] = {"ε"}, 
+        [TERM_ASSIGN] = {"ε"},
+        [TERM_EP] = {"ε"}
     }
-}
+};
+
 
 // Function to Initialize the stack
 void initializeStack(STACK *stack)
@@ -1008,12 +1180,20 @@ void skipWhitespace(TOKEN_ARRAY *tokenArray, int *ip)
     }
 }
 
+void syntax_error(int expected, char *token_found, int current_terminal){
+    FILE *errorFile = fopen("./errors.txt", "a");
+    fprintf(errorFile, "Syntax Error: expected token '%d' but found '%s Current Terminal %d'\n", expected, token_found, current_terminal);
+    fclose(errorFile);
+}
+
+
+
 /*
  *   Phase 2 main function
  *   Runs the syntax analyzer
  */
 
-NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
+void *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
 {
     // Push end-of-input marker and the start symbol (<program>) onto the stack
     Symbol eof_sym = {SYMBOL_TERMINAL, TERM_EOF};
@@ -1056,9 +1236,7 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                 else
                 {
                     // printf("Syntax Error: expected token '%d' but found '%s Current Terminal %d'\n", top.value, current_token.lexeme, current_terminal);
-                    FILE *errorFile = fopen("./errors.txt", "a");
-                    fprintf(errorFile, "Syntax Error: expected token '%d' but found '%s Current Terminal %d'\n", top.value, current_token.lexeme, current_terminal);
-                    fclose(errorFile);
+                    syntax_error(top.value, current_token.lexeme, current_terminal);
                     ip = ip + 1;
                     skipWhitespace(tk, &ip);
                     // printf("Ip incremented\n");
@@ -1077,7 +1255,13 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                 // printf("Production: %s\n", prod);
                 if (prod == NULL)
                 {
-                    pop(stack);
+                    if(ll1_table[nt][TERM_EP].production == "ε"){
+                        pop(stack);
+                    }
+                    else
+                    {
+                        syntax_error(top.value, current_token.lexeme, current_terminal);
+                    }
                 }
                 else
                 {
@@ -1096,12 +1280,14 @@ NODE *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
             }
         }
     }
-    if (current_terminal == TERM_EOF)
+    if (current_terminal == TERM_EOF && ip == tk->size)
         printf("Input successfully parsed.\n");
-    else
-        printf("Syntax error: input not fully consumed.\n");
+    else{
+        FILE *errorFile = fopen("./errors.txt", "a");
+        fprintf(errorFile, "Syntax Error: input not fully consumed");
+        fclose(errorFile);
+    }
 
-    return NULL;
 }
 
 /*

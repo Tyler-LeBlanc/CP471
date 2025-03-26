@@ -6,14 +6,6 @@ Lexeme:i, Type: IDENTIFIER
 Lexeme:;, Type: DELIMITER
 Lexeme:
 , Type: DELIMITER
-Lexeme:double, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:z, Type: IDENTIFIER
-Lexeme:,, Type: DELIMITER
-Lexeme:u, Type: IDENTIFIER
-Lexeme:;, Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
 Lexeme:x, Type: IDENTIFIER
 Lexeme:=, Type: ASSIGNMENT_OPERATOR
 Lexeme:0, Type: INTEGER
@@ -32,8 +24,6 @@ Lexeme:10, Type: INTEGER
 Lexeme:), Type: DELIMITER
 Lexeme: , Type: DELIMITER
 Lexeme:do, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:fed, Type: KEYWORD
 Lexeme:
 , Type: DELIMITER
 Lexeme:	, Type: DELIMITER
@@ -59,19 +49,9 @@ Lexeme:od, Type: KEYWORD
 Lexeme:;, Type: DELIMITER
 Lexeme:
 , Type: DELIMITER
-Lexeme:if, Type: KEYWORD
-Lexeme:(, Type: DELIMITER
-Lexeme:z, Type: IDENTIFIER
-Lexeme: , Type: DELIMITER
-Lexeme:<, Type: COMPARISON_OPERATOR
-Lexeme: , Type: DELIMITER
-Lexeme:u, Type: IDENTIFIER
-Lexeme:), Type: DELIMITER
-Lexeme:then, Type: KEYWORD
 Lexeme:
 , Type: DELIMITER
-Lexeme:fi, Type: KEYWORD
-Lexeme:;, Type: DELIMITER
+Lexeme:hello, Type: IDENTIFIER
 Lexeme:
 , Type: DELIMITER
 Lexeme:

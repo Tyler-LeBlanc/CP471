@@ -1,1 +1,7 @@
-Invalid character:$, on line 7
+Invalid character:$, on line 5
+Syntax Error: expected token '33' but found 'print Current Terminal 11'
+Syntax Error: expected token '33' but found '( Current Terminal 21'
+Syntax Error: expected token '33' but found 'x Current Terminal 35'
+Syntax Error: expected token '33' but found ') Current Terminal 22'
+Syntax Error: expected token '33' but found '; Current Terminal 24'
+Syntax Error: expected token '33' but found '. Current Terminal 34'
