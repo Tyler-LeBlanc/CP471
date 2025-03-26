@@ -12,7 +12,7 @@
  */
 
 #define BUFFERSIZE 1024
-#define INITIAL_CAPACITY 200
+#define INITIAL_CAPACITY 2000
 // Mapping of acceptance states to token types
 StateTokenMap tokenMap[] = {
     {1, "IDENTIFIER"},
@@ -1179,9 +1179,9 @@ void skipWhitespace(TOKEN_ARRAY *tokenArray, int *ip)
     }
 }
 
-void syntax_error(int expected, char *token_found, int current_terminal){
+void syntax_error(int expected, char *token_found, int current_terminal, int token_index){
     FILE *errorFile = fopen("./errors.txt", "a");
-    fprintf(errorFile, "Syntax Error: expected token '%d' but found '%s Current Terminal %d'\n", expected, token_found, current_terminal);
+    fprintf(errorFile, "Syntax Error: expected token '%d' but found '%s' Current Terminal '%d', TOKEN INDEX: '%d'\n", expected, token_found, current_terminal, token_index);
     fclose(errorFile);
 }
 
@@ -1235,7 +1235,7 @@ void *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                 else
                 {
                     // printf("Syntax Error: expected token '%d' but found '%s Current Terminal %d'\n", top.value, current_token.lexeme, current_terminal);
-                    syntax_error(top.value, current_token.lexeme, current_terminal);
+                    syntax_error(top.value, current_token.lexeme, current_terminal, ip);
                     ip = ip + 1;
                     skipWhitespace(tk, &ip);
                     // printf("Ip incremented\n");
@@ -1259,7 +1259,15 @@ void *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
                     }
                     else
                     {
-                        syntax_error(top.value, current_token.lexeme, current_terminal);
+                        // printf("Syntax Error: expected token '%d' but found '%s Current Terminal %d'\n", top.value, current_token.lexeme, current_terminal);
+                        syntax_error(top.value, current_token.lexeme, current_terminal, ip);
+                        ip = ip + 1;
+                        skipWhitespace(tk, &ip);
+                        // printf("Ip incremented\n");
+                        current_token = tk->array[ip];
+                        // printf("Current token changed to: %s\n", current_token.lexeme);
+                        current_terminal = convertToken(current_token);
+                        // printf("New token: %s", current_token.lexeme);
                     }
                 }
                 else
@@ -1298,7 +1306,7 @@ int main()
     fprintf(errorFile, ""); // Wipe the error File
     fclose(errorFile);
     printf("Lexical Analysis\n-----------------------------------------------------\n");
-    TOKEN_ARRAY *tk = LexicalAnalysis("Test9.cp");
+    TOKEN_ARRAY *tk = LexicalAnalysis("Test6.cp");
     STACK *stack = malloc(sizeof(STACK));
     printf("init stack\n");
     initializeStack(stack);
