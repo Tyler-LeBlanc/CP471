@@ -1,6 +1,5 @@
-#ifndef AST_H_
-#define AST_H_
-
+#ifndef Syntax_Analysis_
+#define Syntax_Analysis_
 #define MAX_STACK 100
 
 typedef struct NODE

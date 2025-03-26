@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "LexicalAnalysis.h"
-#include "AST.h"
+#include "SyntaxAnalysis.h"
 #include <ctype.h>
 
 /*
