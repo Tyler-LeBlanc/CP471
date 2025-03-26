@@ -12,7 +12,7 @@
  */
 
 #define BUFFERSIZE 1024
-#define INITIAL_CAPACITY 100
+#define INITIAL_CAPACITY 200
 // Mapping of acceptance states to token types
 StateTokenMap tokenMap[] = {
     {1, "IDENTIFIER"},
@@ -391,7 +391,6 @@ int isKeyword(const char *token)
 // Function to print out all tokens stored
 void printTokens(TOKEN_ARRAY *tokenArray)
 {
-    printf("Tokens Found:\n");
     FILE *tokenFile = fopen("./tokens.txt", "w");
     for (int i = 0; i < tokenArray->size; i++)
     {
@@ -974,7 +973,7 @@ Symbol getSymbolFromTokenString(const char *tokenStr)
         return sym;
     }
 
-    if (tokenStr[0] == '<' && tokenStr[len - 1] == '>')
+    if ((tokenStr[0] == '<' && tokenStr[len - 1] == '>') && !(tokenStr[0] == '<' && tokenStr[1] == '>'))
     {
         sym.type = SYMBOL_NONTERMINAL;
         if (strcmp(tokenStr, "<program>") == 0)
@@ -1298,9 +1297,12 @@ int main()
     FILE *errorFile = fopen("./errors.txt", "w");
     fprintf(errorFile, ""); // Wipe the error File
     fclose(errorFile);
-    TOKEN_ARRAY *tk = LexicalAnalysis("Test4.cp");
+    printf("Lexical Analysis\n-----------------------------------------------------\n");
+    TOKEN_ARRAY *tk = LexicalAnalysis("Test9.cp");
     STACK *stack = malloc(sizeof(STACK));
     printf("init stack\n");
     initializeStack(stack);
-    NODE *ast_root = SyntaxAnalysis(tk, stack);
+
+    printf("Syntax Analysis\n-------------------------------------------------------\n");
+    SyntaxAnalysis(tk, stack);
 }
