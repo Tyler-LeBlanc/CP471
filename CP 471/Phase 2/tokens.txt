@@ -1,5 +1,7 @@
 Lexeme:def, Type: KEYWORD
 Lexeme: , Type: DELIMITER
+Lexeme:int, Type: KEYWORD
+Lexeme: , Type: DELIMITER
 Lexeme:newFunction, Type: IDENTIFIER
 Lexeme:(, Type: DELIMITER
 Lexeme:int, Type: KEYWORD
@@ -44,6 +46,8 @@ Lexeme:
 , Type: DELIMITER
 Lexeme:def, Type: KEYWORD
 Lexeme: , Type: DELIMITER
+Lexeme:double, Type: KEYWORD
+Lexeme: , Type: DELIMITER
 Lexeme:anotherFunction, Type: IDENTIFIER
 Lexeme:(, Type: DELIMITER
 Lexeme:int, Type: KEYWORD
@@ -68,7 +72,7 @@ Lexeme: , Type: DELIMITER
 Lexeme: , Type: DELIMITER
 Lexeme:int, Type: KEYWORD
 Lexeme: , Type: DELIMITER
-Lexeme:r, Type: IDENTIFIER
+Lexeme:l, Type: IDENTIFIER
 Lexeme:;, Type: DELIMITER
 Lexeme:
 , Type: DELIMITER
@@ -76,11 +80,33 @@ Lexeme: , Type: DELIMITER
 Lexeme: , Type: DELIMITER
 Lexeme: , Type: DELIMITER
 Lexeme: , Type: DELIMITER
-Lexeme:r, Type: IDENTIFIER
+Lexeme:l, Type: IDENTIFIER
 Lexeme: , Type: DELIMITER
 Lexeme:=, Type: ASSIGNMENT_OPERATOR
 Lexeme: , Type: DELIMITER
 Lexeme:0, Type: INTEGER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme:int, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:b, Type: IDENTIFIER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme:b, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:=, Type: ASSIGNMENT_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:1, Type: INTEGER
 Lexeme:;, Type: DELIMITER
 Lexeme:
 , Type: DELIMITER
