@@ -1131,6 +1131,101 @@ void *SyntaxAnalysis(TOKEN_ARRAY *tk, STACK *stack)
         fclose(errorFile);
     }
 }
+/*
+Phase 3 Code:
+*/
+
+typedef struct
+{
+    char *name;
+    int type;
+    int returnType;
+    int function;
+    int paramCount;
+    int *params;
+} GLOBAL_ITEM;
+
+typedef struct
+{
+    GLOBAL_ITEM *declarated;
+} GLOBAL_SCOPE;
+void getNextToken(TOKEN_ARRAY *tk, int *index)
+{
+    while (strcmp(tk->array[*index].lexeme, "\n") == 0 || strcmp(tk->array[*index].lexeme, " ") == 0 || strcmp(tk->array[*index].lexeme, "\t") == 0)
+    {
+        (*index) = (*index) + 1; // skip over empty tokens
+    }
+}
+void SemanticAnalysis(TOKEN_ARRAY *tk)
+{
+    int index = 0;
+    int insideFunction = 0; // False = 0, true = 1
+    char *funcName = "";    // Current name of the function we are inside
+    int inParams = 0;       // False = 0, true = 1
+    int paramsCount = 0;
+    printf("Starting semantic analysis\n");
+    while (index < tk->size) // while inside the array
+    {
+        getNextToken(tk, &index);              // ensure the start of the array isnt nothing
+        TOKEN currentToken = tk->array[index]; // get first token
+        if (strcmp(currentToken.lexeme, "def") == 0)
+        {
+            insideFunction = 1; // we are inside of a function
+            index = index + 1;  // The next token, assuming proper syntax, should be the function name {def funcName(params)}
+            getNextToken(tk, &index);
+            funcName = tk->array[index].lexeme;
+            // printf("Inside a function with function name: %s\n", funcName);
+        }
+        else if (strcmp(currentToken.lexeme, "fed") == 0)
+        {
+            insideFunction = 0; // function declaration over, no longer inside a function
+            inParams = 0;       // reset parameters
+            // printf("Left the function %s", funcName);
+        }
+        if (insideFunction == 1 && strcmp(tk->array[index].lexeme, "(") == 0 && inParams == 0) // If we're in some function and we're seeing a open bracket for the first time.
+        {                                                                                      // Then this is the parameter declaration
+            paramsCount = 0;
+            //("Inside parameter statement\n");
+            int *params = malloc(10 * sizeof(int));
+            inParams = 1; // Ensure we don't start adding parmeters for a while or if statement
+            char *lastType = "";
+            while (strcmp(tk->array[index].lexeme, ")") != 0)
+            {                                                            // While inside parameter declaration
+                while (strcmp(tk->array[index].type, "IDENTIFIER") != 0) // go to the identifier
+                {
+                    if (strcmp(tk->array[index].type, "KEYWORD") == 0)
+                    {
+                        if (strcmp(tk->array[index].lexeme, "int") == 0)
+                        {
+                            params[paramsCount] = 0;
+                            lastType = "int";
+                        }
+                        else if (strcmp(tk->array[index].lexeme, "double") == 0)
+                        {
+                            lastType = "double";
+                            params[paramsCount] = 1;
+                        }
+                    }
+                    index = index + 1;
+                    getNextToken(tk, &index);
+                }
+                printf("Found Parameter: %s with type: %s\n", tk->array[index].lexeme, lastType);
+                paramsCount = paramsCount + 1; // increment count;
+                index = index + 1;
+            }
+            // printf("Found end of parameters\n");
+            GLOBAL_ITEM *newDec = malloc(sizeof(GLOBAL_ITEM));
+            newDec->name = funcName;
+            newDec->type = 0;       // idk yet
+            newDec->returnType = 0; // idk yet
+            newDec->function = insideFunction;
+            newDec->paramCount = paramsCount;
+            newDec->params = params;
+            printf("Added function: %s to global table with parameter count %d\n", newDec->name, newDec->paramCount);
+        }
+        index = index + 1; // point to the next token
+    }
+}
 
 /*
  *   Main Function
@@ -1150,12 +1245,14 @@ int main()
     fprintf(errorFile, ""); // Wipe the error File
     fclose(errorFile);
     printf("Lexical Analysis\n-----------------------------------------------------\n");
-    TOKEN_ARRAY *tk = LexicalAnalysis("Test6.cp");
+    TOKEN_ARRAY *tk = LexicalAnalysis("Test10.cp");
     STACK *stack = malloc(sizeof(STACK));
     printf("init stack\n");
     initializeStack(stack);
     // printTokenArray(tk);
-    printf("Syntax Analysis\n------------------------------------------------------- %d\n", tk->size);
+    printf("Syntax Analysis\n------------------------------------------------------- \n");
     // printf("End of token stream: %s", tk->array[tk->size].lexeme);
-    SyntaxAnalysis(tk, stack);
+    // SyntaxAnalysis(tk, stack);
+    printf("Semantic Analysis\n------------------------------------------------------- \n");
+    SemanticAnalysis(tk);
 }
