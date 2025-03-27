@@ -1147,7 +1147,9 @@ typedef struct
 
 typedef struct
 {
-    GLOBAL_ITEM *declarated;
+    GLOBAL_ITEM *decs;
+    int size;
+    int capacity;
 } GLOBAL_SCOPE;
 void getNextToken(TOKEN_ARRAY *tk, int *index)
 {
@@ -1156,8 +1158,59 @@ void getNextToken(TOKEN_ARRAY *tk, int *index)
         (*index) = (*index) + 1; // skip over empty tokens
     }
 }
+void PrintGlobal(GLOBAL_SCOPE *globalTable)
+{
+    printf("\n%-20s %-10s %-15s %-12s %-13s %-10s\n",
+           "Name", "Type", "Return Type", "Function", "Param Count", "Params");
+    printf("-------------------------------------------------------------------------------------------------------------------------------------------------\n");
+    for (int i = 0; i < globalTable->size; i++)
+    {
+        printf("%-20s %-10d %-15d %-12d %-13d ",
+               globalTable->decs[i].name,
+               globalTable->decs[i].type,
+               globalTable->decs[i].returnType,
+               globalTable->decs[i].function,
+               globalTable->decs[i].paramCount);
+
+        for (int j = 0; j < globalTable->decs[i].paramCount; j++)
+        {
+            printf("%d, ", globalTable->decs[i].params[j]);
+        }
+        printf("\n");
+    }
+    printf("-------------------------------------------------------------------------------------------------------------------------------------------------\n");
+}
+void addGlobalVariable(char *varName, int type, int returnType, int isFunction, int paramsCount, int *params, GLOBAL_SCOPE *globalTable)
+{
+    GLOBAL_ITEM *newDec = &globalTable->decs[globalTable->size]; // get next avalible slot in the global table
+    newDec->name = varName;
+    newDec->type = type;              // we get type at the start
+    newDec->returnType = type;        // return type for a variable will just be it's type.
+    newDec->function = isFunction;    // this will always be 0 in this case
+    newDec->paramCount = paramsCount; // this will also always be 0
+    newDec->params = params;          // This will just be an empty array
+    if (isFunction == 1)              // if this is a function tell me!
+    {
+        printf("Added function: %s to global table with parameter count %d\n", newDec->name, newDec->paramCount);
+    }
+    else
+    {
+        printf("Added variable: %s to global table with type %d\n", newDec->name, newDec->type);
+    }
+    globalTable->size = globalTable->size + 1; // increment the size;
+    if (globalTable->size == globalTable->capacity)
+    {
+        globalTable->capacity = globalTable->capacity * 2;                                           // double the capacity
+        globalTable->decs = realloc(globalTable->decs, globalTable->capacity * sizeof(GLOBAL_ITEM)); // re allocate more data doubling the size
+        printf("Allocated more size for the global table\n");
+    }
+}
 void SemanticAnalysis(TOKEN_ARRAY *tk)
 {
+    GLOBAL_SCOPE *globalTable = malloc(sizeof(GLOBAL_SCOPE)); // Create the global table (array of global items)
+    globalTable->capacity = 10;
+    globalTable->decs = malloc(globalTable->capacity * sizeof(GLOBAL_ITEM)); // allow for 10 items to be added to the global table
+    globalTable->size = 0;                                                   // init size
     int index = 0;
     int insideFunction = 0; // False = 0, true = 1
     char *funcName = "";    // Current name of the function we are inside
@@ -1214,17 +1267,36 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                 index = index + 1;
             }
             // printf("Found end of parameters\n");
-            GLOBAL_ITEM *newDec = malloc(sizeof(GLOBAL_ITEM));
-            newDec->name = funcName;
-            newDec->type = 0;       // idk yet
-            newDec->returnType = 0; // idk yet
-            newDec->function = insideFunction;
-            newDec->paramCount = paramsCount;
-            newDec->params = params;
-            printf("Added function: %s to global table with parameter count %d\n", newDec->name, newDec->paramCount);
+            addGlobalVariable(funcName, 0, 0, insideFunction, paramsCount, params, globalTable);
+        }
+        else if (insideFunction == 0)
+        {                  // Not inside of a function dec, aka if we're in global scope
+            int type = -1; // set to null essentially
+            char *varName = "";
+            int *params = malloc(10 * sizeof(int));
+            int paramsCount = 0;                             // I know there will be no parameters for a variable, and I'm sure this isn't a function declaration {no brackets () and not inside a function}
+            if (strcmp(tk->array[index].lexeme, "int") == 0) // if the definition of some variable
+            {
+                type = 0;
+            }
+            else if (strcmp(tk->array[index].lexeme, "double") == 0) // if it's a double instead of an int
+            {
+                type = 1;
+            }
+            if (type >= 0)
+            { // if we found a declaration of some identifier
+                index = index + 1;
+                getNextToken(tk, &index);                             // The next token should be some identifier so I can get it's name
+                if (strcmp(tk->array[index].type, "IDENTIFIER") == 0) // If I did get an identifyer (var name)
+                {
+                    varName = tk->array[index].lexeme; // Get the variable name. I know this is a variable name as the prev token was a keyword (int||dub) and this is a identifier.
+                }
+                addGlobalVariable(varName, type, type, insideFunction, paramsCount, params, globalTable);
+            }
         }
         index = index + 1; // point to the next token
     }
+    PrintGlobal(globalTable);
 }
 
 /*

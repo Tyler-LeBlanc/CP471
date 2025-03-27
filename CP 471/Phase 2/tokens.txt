@@ -85,3 +85,18 @@ Lexeme:;, Type: DELIMITER
 Lexeme:
 , Type: DELIMITER
 Lexeme:fed, Type: KEYWORD
+Lexeme:
+, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:int, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:newVar, Type: IDENTIFIER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:double, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:dubVar, Type: IDENTIFIER
+Lexeme:;, Type: DELIMITER
+Lexeme:., Type: DELIMITER
