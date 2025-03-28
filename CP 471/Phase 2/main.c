@@ -1204,12 +1204,19 @@ void addGlobalVariable(char *varName, int type, int returnType, int isFunction, 
 {
     GLOBAL_ITEM *newDec = &globalTable->decs[globalTable->size]; // get next avalible slot in the global table
     newDec->name = varName;
-    newDec->type = type;              // we get type at the start
-    newDec->returnType = type;        // return type for a variable will just be it's type.
-    newDec->function = isFunction;    // this will always be 0 in this case
-    newDec->paramCount = paramsCount; // this will also always be 0
-    newDec->params = params;          // This will just be an empty array
-    if (isFunction == 1)              // if this is a function tell me!
+    newDec->type = type;       // we get type at the start
+    newDec->returnType = type; // return type for a variable will just be it's type.
+    newDec->function = isFunction;
+    newDec->paramCount = paramsCount;
+    if (paramsCount > 0)
+    {
+        newDec->params = params; // This will just be an empty array
+    }
+    else
+    {
+        newDec->params = NULL;
+    }
+    if (isFunction == 1) // if this is a function tell me!
     {
         // printf("Added function: %s to global table with parameter count %d\n", newDec->name, newDec->paramCount);
     }
@@ -1267,7 +1274,7 @@ void addLocalVariable(char *funcName, char *varName, int type, LOCAL_SCOPE *loca
     else
     {
         location = &localTable->functions[exist];
-        printf("Function already defined in local table %s Size %d\n", location->funcName, location->size);
+        // printf("Function already defined in local table %s Size %d\n", location->funcName, location->size);
     }
     LOCAL_ITEM *localItem = &location->decs[location->size]; // next open location to declare a new variable for this function name
     location->size = location->size + 1;
@@ -1284,7 +1291,7 @@ void addLocalVariable(char *funcName, char *varName, int type, LOCAL_SCOPE *loca
         location->capacity = location->capacity * 2;
         location->decs = realloc(location->decs, location->capacity * sizeof(LOCAL_ITEM)); // alloc more mem for full structure
     }
-    printf("Found local variable: %s Inside function: %s\n", varName, funcName);
+    // printf("Found local variable: %s Inside function: %s\n", varName, funcName);
 }
 void GetTokensAndAddGlobal(int *index, TOKEN_ARRAY *tk, int type, int insideFunction, int paramsCount, int *params, GLOBAL_SCOPE *globalTable) // This function is kind of unessesary but cuts down a bit on lines of code it mainly just checks for global variables
 {
@@ -1326,6 +1333,36 @@ void GetTokensAndAddLocal(int *index, TOKEN_ARRAY *tk, char *funcName, int type,
         }
     }
 }
+int SearchGlobalTable(GLOBAL_SCOPE *globaleTable, char *name) // take in table and var or func name I am looking for
+{
+    for (int i = 0; i < globaleTable->size; i++)
+    {
+        if (strcmp(globaleTable->decs[i].name, name) == 0) // if we found what we're looking for in the global table
+        {
+            return 1; // return that we found it
+        }
+    }
+    return -1; // no we didnt find it.
+}
+int SearchLocalTable(LOCAL_SCOPE *localTable, char *funcName, char *varName)
+{
+    // printf("Searching local table %s for %s\n", funcName, varName);
+    for (int func = 0; func < localTable->size; func++)
+    {
+        if (strcmp(localTable->functions[func].funcName, funcName) == 0)
+        { // if the function is in the local table
+            // printf("Found %s Table\n", funcName);
+            for (int dec = 0; dec < localTable->functions[func].size; dec++)
+            {                                                                            // iterate over all declarations in this function
+                if (strcmp(localTable->functions[func].decs[dec].varName, varName) == 0) // if we find the var name
+                {
+                    return 1;
+                }
+            }
+        }
+    }
+    return -1;
+}
 void SemanticAnalysis(TOKEN_ARRAY *tk)
 {
     // Initalization for local and global table --
@@ -1345,6 +1382,7 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
     char *funcName = "";    // Current name of the function we are inside
     int inParams = 0;       // False = 0, true = 1
     int paramsCount = 0;
+    int buildingFunction = 0; // used to see if we are constructing a function declaration for global
     int type;
     int returnType;
     printf("Starting semantic analysis\n");
@@ -1353,8 +1391,9 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
         getNextToken(tk, &index);              // ensure the start of the array isnt nothing
         TOKEN currentToken = tk->array[index]; // get first token
         // Start of adding functions to global table--
-        if (strcmp(currentToken.lexeme, "def") == 0)
+        if (strcmp(currentToken.lexeme, "def") == 0) // if found func dec
         {
+            buildingFunction = 1;
             insideFunction = 1; // we are inside of a function
             index = index + 1;  // The next token, assuming proper syntax, should be the function type {def int funcName(params)}
             getNextToken(tk, &index);
@@ -1392,6 +1431,7 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
             int *params = malloc(10 * sizeof(int));
             inParams = 1; // Ensure we don't start adding parmeters for a while or if statement
             char *lastType = "";
+            index = index + 1;
             while (strcmp(tk->array[index].lexeme, ")") != 0)
             {                                                            // While inside parameter declaration
                 while (strcmp(tk->array[index].type, "IDENTIFIER") != 0) // go to the identifier
@@ -1412,11 +1452,15 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                     index = index + 1;
                     getNextToken(tk, &index);
                 }
-                addLocalVariable(funcName, tk->array[index].lexeme, params[paramsCount], localTable); // Add parameters to the local table for the appropriate function
-                // printf("Found Parameter: %s with type: %s\n", tk->array[index].lexeme, lastType);
-                paramsCount = paramsCount + 1; // increment count;
+                if (strcmp(lastType, "") != 0)
+                {
+                    addLocalVariable(funcName, tk->array[index].lexeme, params[paramsCount], localTable); // Add parameters to the local table for the appropriate function
+                    // printf("Found Parameter: %s with type: %s\n", tk->array[index].lexeme, lastType);
+                    paramsCount = paramsCount + 1; // increment count;
+                }
                 index = index + 1;
             }
+            buildingFunction = 0;
             // printf("Found end of parameters\n");
             addGlobalVariable(funcName, type, returnType, insideFunction, paramsCount, params, globalTable);
         }
@@ -1458,6 +1502,41 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                 GetTokensAndAddLocal(&index, tk, funcName, type, localTable);
             }
         }
+        //--End of adding values to local table
+        // Start of checking the Scope and Type--
+        if (strcmp(tk->array[index].type, "IDENTIFIER") == 0 && buildingFunction == 0)
+        {
+            int searchResult = 0;
+            // printf("Checking global table for: %s\n", tk->array[index].lexeme);
+            searchResult = SearchGlobalTable(globalTable, tk->array[index].lexeme); // is this variable defined? It should be
+            if (searchResult == 1)
+            {
+                // printf("Found %s in global table\n", tk->array[index].lexeme);
+            }
+            else // Maybe a semantic error, but if we are inside a function we need to check the local table
+            {
+                // printf("No %s in global table\n", tk->array[index].lexeme);
+                if (insideFunction == 1)
+                {
+                    // printf("inside a function checking the %s table for %s\n", funcName, tk->array[index].lexeme);
+                    searchResult = SearchLocalTable(localTable, funcName, tk->array[index].lexeme);
+                    // if (searchResult == 1)
+                    // {
+                    //     printf("Found local variable %s\n", tk->array[index].lexeme);
+                    // }
+                    if (searchResult != 1)
+                    {
+
+                        printf("Semantic error %s does not exist at this scope %s\n", tk->array[index].lexeme, funcName);
+                    }
+                }
+                else
+                {
+                    printf("Not inside function Semantic error %s does not exist at this scope\n", tk->array[index].lexeme);
+                }
+            }
+        }
+        //--End of checking the Scope and Type
         index = index + 1; // point to the next token
     }
     PrintGlobal(globalTable);

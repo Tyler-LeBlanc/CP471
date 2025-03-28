@@ -1,11 +1,100 @@
 Lexeme:int, Type: KEYWORD
 Lexeme: , Type: DELIMITER
-Lexeme:a, Type: IDENTIFIER
-Lexeme:,, Type: DELIMITER
-Lexeme:b, Type: IDENTIFIER
-Lexeme:,, Type: DELIMITER
-Lexeme:c, Type: IDENTIFIER
+Lexeme:l, Type: IDENTIFIER
 Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:def, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:double, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:newFunc, Type: IDENTIFIER
+Lexeme:(, Type: DELIMITER
+Lexeme:int, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:o, Type: IDENTIFIER
+Lexeme:), Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:	, Type: DELIMITER
+Lexeme:o, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:=, Type: ASSIGNMENT_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:15, Type: INTEGER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:fed, Type: KEYWORD
+Lexeme:
+, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:def, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:int, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:func, Type: IDENTIFIER
+Lexeme:(, Type: DELIMITER
+Lexeme:int, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:c, Type: IDENTIFIER
+Lexeme:,, Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme:double, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:e, Type: IDENTIFIER
+Lexeme:), Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:	, Type: DELIMITER
+Lexeme:int, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:a, Type: IDENTIFIER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:	, Type: DELIMITER
+Lexeme:o, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:=, Type: ASSIGNMENT_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:10, Type: INTEGER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:	, Type: DELIMITER
+Lexeme:if, Type: KEYWORD
+Lexeme:(, Type: DELIMITER
+Lexeme:l, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:=, Type: ASSIGNMENT_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:0, Type: INTEGER
+Lexeme:), Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme:then, Type: KEYWORD
+Lexeme:
+, Type: DELIMITER
+Lexeme:	, Type: DELIMITER
+Lexeme:	, Type: DELIMITER
+Lexeme:print, Type: KEYWORD
+Lexeme:(, Type: DELIMITER
+Lexeme:l, Type: IDENTIFIER
+Lexeme:), Type: DELIMITER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:	, Type: DELIMITER
+Lexeme:fi, Type: KEYWORD
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:fed, Type: KEYWORD
+Lexeme:
+, Type: DELIMITER
 Lexeme:
 , Type: DELIMITER
 Lexeme:def, Type: KEYWORD
@@ -118,6 +207,24 @@ Lexeme:fi, Type: KEYWORD
 Lexeme:;, Type: DELIMITER
 Lexeme:
 , Type: DELIMITER
+Lexeme:	, Type: DELIMITER
+Lexeme:l, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:=, Type: ASSIGNMENT_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:10, Type: INTEGER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:	, Type: DELIMITER
+Lexeme:o, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:=, Type: ASSIGNMENT_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:15, Type: INTEGER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
 Lexeme:fed, Type: KEYWORD
 Lexeme:;, Type: DELIMITER
 Lexeme:
@@ -131,36 +238,3 @@ Lexeme:,, Type: DELIMITER
 Lexeme:15, Type: INTEGER
 Lexeme:), Type: DELIMITER
 Lexeme:., Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
-Lexeme:def, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:double, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:newFunction, Type: IDENTIFIER
-Lexeme:(, Type: DELIMITER
-Lexeme:double, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:z, Type: IDENTIFIER
-Lexeme:,, Type: DELIMITER
-Lexeme: , Type: DELIMITER
-Lexeme:int, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:y, Type: IDENTIFIER
-Lexeme:), Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
-Lexeme:	, Type: DELIMITER
-Lexeme:int, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:r, Type: IDENTIFIER
-Lexeme:,, Type: DELIMITER
-Lexeme:a, Type: IDENTIFIER
-Lexeme:,, Type: DELIMITER
-Lexeme:d, Type: IDENTIFIER
-Lexeme:;, Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
-Lexeme:fed, Type: KEYWORD
