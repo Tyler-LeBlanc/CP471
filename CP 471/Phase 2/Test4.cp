@@ -1,4 +1,6 @@
+int a,b,c;
 def int gcd(int a, int b)
+	double c , d , e;
 	if(a==b) then
 		return (a) 
 	fi;

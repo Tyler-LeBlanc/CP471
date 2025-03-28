@@ -1227,13 +1227,14 @@ void addGlobalVariable(char *varName, int type, int returnType, int isFunction, 
 }
 void PrintLocal(LOCAL_SCOPE *localTable)
 {
-    for (int a = 0; a < localTable->size - 1; a++)
+    for (int a = 0; a < localTable->size; a++)
     {
         printf("%s Table:\n", localTable->functions[a].funcName);
         for (int b = 0; b < localTable->functions[a].size; b++)
         {
-            printf("%s %d\n", localTable->functions[a].decs[b].varName, localTable->functions[a].decs[b].type);
+            printf("| %s %d ", localTable->functions[a].decs[b].varName, localTable->functions[a].decs[b].type);
         }
+        printf("|\n");
     }
 }
 int FunctionExistInLocal(LOCAL_SCOPE *localTable, char *funcName)
@@ -1256,10 +1257,12 @@ void addLocalVariable(char *funcName, char *varName, int type, LOCAL_SCOPE *loca
     if (exist == -1)
     {
         location = &localTable->functions[localTable->size]; // next open slot in the table this creates a new local function essentially
+        location->capacity = 10;
         location->decs = malloc(location->capacity * sizeof(LOCAL_ITEM));
-        location->funcName = funcName;
+        location->funcName = strdup(funcName);
         location->size = 0;
         location->capacity = 10;
+        localTable->size = localTable->size + 1;
     }
     else
     {
@@ -1267,11 +1270,10 @@ void addLocalVariable(char *funcName, char *varName, int type, LOCAL_SCOPE *loca
         printf("Function already defined in local table %s Size %d\n", location->funcName, location->size);
     }
     LOCAL_ITEM *localItem = &location->decs[location->size]; // next open location to declare a new variable for this function name
-    localItem->type = type;
-    localItem->varName = varName;
     location->size = location->size + 1;
+    localItem->type = type;
+    localItem->varName = strdup(varName);
     // localTable->functions->size = localTable->functions->size + 1;
-    localTable->size = localTable->size + 1;
     if (localTable->size == localTable->capacity)
     {
         localTable->capacity = localTable->capacity * 2;
@@ -1283,6 +1285,46 @@ void addLocalVariable(char *funcName, char *varName, int type, LOCAL_SCOPE *loca
         location->decs = realloc(location->decs, location->capacity * sizeof(LOCAL_ITEM)); // alloc more mem for full structure
     }
     printf("Found local variable: %s Inside function: %s\n", varName, funcName);
+}
+void GetTokensAndAddGlobal(int *index, TOKEN_ARRAY *tk, int type, int insideFunction, int paramsCount, int *params, GLOBAL_SCOPE *globalTable) // This function is kind of unessesary but cuts down a bit on lines of code it mainly just checks for global variables
+{
+    char *varName;
+    *index = *index + 1;
+    getNextToken(tk, index);                               // The next token should be some identifier so I can get it's name
+    if (strcmp(tk->array[*index].type, "IDENTIFIER") == 0) // If I did get an identifyer (var name)
+    {
+        varName = tk->array[*index].lexeme; // Get the variable name. I know this is a variable name as the prev token was a keyword (int||dub) and this is a identifier.
+        addGlobalVariable(varName, type, type, insideFunction, paramsCount, params, globalTable);
+    }
+    *index = *index + 1;
+    getNextToken(tk, index);
+    if (strcmp(tk->array[*index].lexeme, ",") == 0) // If I find a comma after ward
+    {
+        while (strcmp(tk->array[*index].lexeme, ",") == 0) // While we see commas
+        {
+            GetTokensAndAddGlobal(index, tk, type, insideFunction, paramsCount, params, globalTable);
+        }
+    }
+}
+void GetTokensAndAddLocal(int *index, TOKEN_ARRAY *tk, char *funcName, int type, LOCAL_SCOPE *localTable)
+{
+    char *varName = "";
+    *index = *index + 1;
+    getNextToken(tk, index);
+    if (strcmp(tk->array[*index].type, "IDENTIFIER") == 0)
+    {
+        varName = tk->array[*index].lexeme; // if the next token is a delimeter than it is the variable name
+        addLocalVariable(funcName, varName, type, localTable);
+    }
+    *index = *index + 1;
+    getNextToken(tk, index);
+    if (strcmp(tk->array[*index].lexeme, ",") == 0) // If I find a comma after ward
+    {
+        while (strcmp(tk->array[*index].lexeme, ",") == 0) // While we see commas
+        {
+            GetTokensAndAddLocal(index, tk, funcName, type, localTable);
+        }
+    }
 }
 void SemanticAnalysis(TOKEN_ARRAY *tk)
 {
@@ -1370,6 +1412,7 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                     index = index + 1;
                     getNextToken(tk, &index);
                 }
+                addLocalVariable(funcName, tk->array[index].lexeme, params[paramsCount], localTable); // Add parameters to the local table for the appropriate function
                 // printf("Found Parameter: %s with type: %s\n", tk->array[index].lexeme, lastType);
                 paramsCount = paramsCount + 1; // increment count;
                 index = index + 1;
@@ -1393,13 +1436,7 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
             }
             if (type >= 0)
             { // if we found a declaration of some identifier
-                index = index + 1;
-                getNextToken(tk, &index);                             // The next token should be some identifier so I can get it's name
-                if (strcmp(tk->array[index].type, "IDENTIFIER") == 0) // If I did get an identifyer (var name)
-                {
-                    varName = tk->array[index].lexeme; // Get the variable name. I know this is a variable name as the prev token was a keyword (int||dub) and this is a identifier.
-                }
-                addGlobalVariable(varName, type, type, insideFunction, paramsCount, params, globalTable);
+                GetTokensAndAddGlobal(&index, tk, type, insideFunction, paramsCount, params, globalTable);
             }
         }
         //--End of adding values to global table
@@ -1418,13 +1455,7 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
             }
             if (type >= 0)
             { // if of type int or double
-                index = index + 1;
-                getNextToken(tk, &index);
-                if (strcmp(tk->array[index].type, "IDENTIFIER") == 0)
-                {
-                    varName = tk->array[index].lexeme; // if the next token is a delimeter than it is the variable name
-                    addLocalVariable(funcName, varName, type, localTable);
-                }
+                GetTokensAndAddLocal(&index, tk, funcName, type, localTable);
             }
         }
         index = index + 1; // point to the next token
@@ -1451,7 +1482,7 @@ int main()
     fprintf(errorFile, ""); // Wipe the error File
     fclose(errorFile);
     printf("Lexical Analysis\n-----------------------------------------------------\n");
-    TOKEN_ARRAY *tk = LexicalAnalysis("Test10.cp");
+    TOKEN_ARRAY *tk = LexicalAnalysis("Test4.cp");
     STACK *stack = malloc(sizeof(STACK));
     printf("init stack\n");
     initializeStack(stack);
