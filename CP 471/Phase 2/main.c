@@ -1171,10 +1171,15 @@ typedef struct
     int size;
     int capacity;
 } LOCAL_SCOPE;
+int lineCounter = 1;
 void getNextToken(TOKEN_ARRAY *tk, int *index)
 {
     while (strcmp(tk->array[*index].lexeme, "\n") == 0 || strcmp(tk->array[*index].lexeme, " ") == 0 || strcmp(tk->array[*index].lexeme, "\t") == 0)
     {
+        if (strcmp(tk->array[*index].lexeme, "\n") == 0)
+        {
+            lineCounter = lineCounter + 1;
+        }
         (*index) = (*index) + 1; // skip over empty tokens
     }
 }
@@ -1293,46 +1298,7 @@ void addLocalVariable(char *funcName, char *varName, int type, LOCAL_SCOPE *loca
     }
     // printf("Found local variable: %s Inside function: %s\n", varName, funcName);
 }
-void GetTokensAndAddGlobal(int *index, TOKEN_ARRAY *tk, int type, int insideFunction, int paramsCount, int *params, GLOBAL_SCOPE *globalTable) // This function is kind of unessesary but cuts down a bit on lines of code it mainly just checks for global variables
-{
-    char *varName;
-    *index = *index + 1;
-    getNextToken(tk, index);                               // The next token should be some identifier so I can get it's name
-    if (strcmp(tk->array[*index].type, "IDENTIFIER") == 0) // If I did get an identifyer (var name)
-    {
-        varName = tk->array[*index].lexeme; // Get the variable name. I know this is a variable name as the prev token was a keyword (int||dub) and this is a identifier.
-        addGlobalVariable(varName, type, type, insideFunction, paramsCount, params, globalTable);
-    }
-    *index = *index + 1;
-    getNextToken(tk, index);
-    if (strcmp(tk->array[*index].lexeme, ",") == 0) // If I find a comma after ward
-    {
-        while (strcmp(tk->array[*index].lexeme, ",") == 0) // While we see commas
-        {
-            GetTokensAndAddGlobal(index, tk, type, insideFunction, paramsCount, params, globalTable);
-        }
-    }
-}
-void GetTokensAndAddLocal(int *index, TOKEN_ARRAY *tk, char *funcName, int type, LOCAL_SCOPE *localTable)
-{
-    char *varName = "";
-    *index = *index + 1;
-    getNextToken(tk, index);
-    if (strcmp(tk->array[*index].type, "IDENTIFIER") == 0)
-    {
-        varName = tk->array[*index].lexeme; // if the next token is a delimeter than it is the variable name
-        addLocalVariable(funcName, varName, type, localTable);
-    }
-    *index = *index + 1;
-    getNextToken(tk, index);
-    if (strcmp(tk->array[*index].lexeme, ",") == 0) // If I find a comma after ward
-    {
-        while (strcmp(tk->array[*index].lexeme, ",") == 0) // While we see commas
-        {
-            GetTokensAndAddLocal(index, tk, funcName, type, localTable);
-        }
-    }
-}
+
 int SearchGlobalTable(GLOBAL_SCOPE *globaleTable, char *name) // take in table and var or func name I am looking for
 {
     for (int i = 0; i < globaleTable->size; i++)
@@ -1363,6 +1329,67 @@ int SearchLocalTable(LOCAL_SCOPE *localTable, char *funcName, char *varName)
     }
     return -1;
 }
+void GetTokensAndAddGlobal(int *index, TOKEN_ARRAY *tk, int type, int insideFunction, int paramsCount, int *params, GLOBAL_SCOPE *globalTable) // This function is kind of unessesary but cuts down a bit on lines of code it mainly just checks for global variables
+{
+    char *varName;
+    *index = *index + 1;
+    getNextToken(tk, index);                               // The next token should be some identifier so I can get it's name
+    if (strcmp(tk->array[*index].type, "IDENTIFIER") == 0) // If I did get an identifyer (var name)
+    {
+        varName = tk->array[*index].lexeme; // Get the variable name. I know this is a variable name as the prev token was a keyword (int||dub) and this is a identifier.
+        int searchResult = SearchGlobalTable(globalTable, varName);
+        //  printf("Done search for %s result %d\n", varName, searchResult);
+        if (searchResult == -1)
+        {
+            // printf("did not find %s in global \n", varName);
+            addGlobalVariable(varName, type, type, insideFunction, paramsCount, params, globalTable);
+        }
+        else
+        {
+            printf("Semantic error On line %d declaration %s has already been defined\n", lineCounter, varName);
+        }
+    }
+    *index = *index + 1;
+    getNextToken(tk, index);
+    if (strcmp(tk->array[*index].lexeme, ",") == 0) // If I find a comma after ward
+    {
+        while (strcmp(tk->array[*index].lexeme, ",") == 0) // While we see commas
+        {
+            GetTokensAndAddGlobal(index, tk, type, insideFunction, paramsCount, params, globalTable);
+        }
+    }
+}
+void GetTokensAndAddLocal(int *index, TOKEN_ARRAY *tk, char *funcName, int type, LOCAL_SCOPE *localTable)
+{
+    char *varName = "";
+    *index = *index + 1;
+    getNextToken(tk, index);
+    if (strcmp(tk->array[*index].type, "IDENTIFIER") == 0)
+    {
+        varName = tk->array[*index].lexeme; // if the next token is a delimeter than it is the variable name
+        int searchResult = SearchLocalTable(localTable, funcName, varName);
+        //  printf("Done search for %s result %d\n", varName, searchResult);
+        if (searchResult == -1)
+        {
+            // printf("did not find %s in global \n", varName);
+            addLocalVariable(funcName, varName, type, localTable);
+        }
+        else
+        {
+            printf("Semantic error On line %d declaration %s has already been defined\n", lineCounter, varName);
+        }
+    }
+    *index = *index + 1;
+    getNextToken(tk, index);
+    if (strcmp(tk->array[*index].lexeme, ",") == 0) // If I find a comma after ward
+    {
+        while (strcmp(tk->array[*index].lexeme, ",") == 0) // While we see commas
+        {
+            GetTokensAndAddLocal(index, tk, funcName, type, localTable);
+        }
+    }
+}
+
 void SemanticAnalysis(TOKEN_ARRAY *tk)
 {
     // Initalization for local and global table --
@@ -1462,7 +1489,16 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
             }
             buildingFunction = 0;
             // printf("Found end of parameters\n");
-            addGlobalVariable(funcName, type, returnType, insideFunction, paramsCount, params, globalTable);
+            // GetTokensAndAddGlobal(&index, tk, type, insideFunction, paramsCount, params, globalTable);
+            int searchResult = SearchGlobalTable(globalTable, funcName);
+            if (searchResult == -1)
+            {
+                addGlobalVariable(funcName, type, returnType, insideFunction, paramsCount, params, globalTable);
+            }
+            else
+            {
+                printf("Semantic error On line %d declaration %s has already been defined\n", lineCounter, funcName);
+            }
         }
         else if (insideFunction == 0)
         {              // Not inside of a function dec, aka if we're in global scope
@@ -1527,12 +1563,12 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                     if (searchResult != 1)
                     {
 
-                        printf("Semantic error %s does not exist at this scope %s\n", tk->array[index].lexeme, funcName);
+                        printf("Semantic error %s does not exist at this scope %s on line %d\n", tk->array[index].lexeme, funcName, lineCounter);
                     }
                 }
                 else
                 {
-                    printf("Not inside function Semantic error %s does not exist at this scope\n", tk->array[index].lexeme);
+                    printf("Semantic error %s does not exist at this scope on line %d\n", tk->array[index].lexeme, lineCounter);
                 }
             }
         }
@@ -1561,7 +1597,7 @@ int main()
     fprintf(errorFile, ""); // Wipe the error File
     fclose(errorFile);
     printf("Lexical Analysis\n-----------------------------------------------------\n");
-    TOKEN_ARRAY *tk = LexicalAnalysis("Test4.cp");
+    TOKEN_ARRAY *tk = LexicalAnalysis("Test10.cp");
     STACK *stack = malloc(sizeof(STACK));
     printf("init stack\n");
     initializeStack(stack);

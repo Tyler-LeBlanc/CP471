@@ -1,23 +1,16 @@
-def int newFunction(int x, int y)
-    int r;
-    r = 0;
+def int func(int x, double y)
+    int z;
+    z = x + y
+    return z;
+fed
+int a;
+double b;
+a = 10;
+b = 1.2;
+
+def int func(int o, int p)
+    int o, p;
 fed
 
 
-def double anotherFunction(int z, int b, double d)
-    int l;
-    l = 0;
-    int cucking = 3;
-    int b;
-    b = 1;
-fed
-
-int feces;
-int newVar;
-
-def int gcd(int x, int z, int y)
-    int min;
-    int max;
-fed
-
-double dubVar;.
+func(a,b)

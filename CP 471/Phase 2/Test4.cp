@@ -1,4 +1,5 @@
 int l;
+gcd(12,15);
 
 def double newFunc(int o)
 	o = 15;
