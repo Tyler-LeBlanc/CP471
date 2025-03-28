@@ -1,16 +1,12 @@
 def int func(int x, double y)
     int z;
-    z = x + y
+    z = x + y;
+    u = 0;
     return z;
 fed
 int a;
 double b;
-a = 10;
-b = 1.2;
-
-def int func(int o, int p)
-    int o, p;
-fed
-
-
-func(a,b)
+a = 10 + 1 + 1.2;
+a = a * a * a * b;
+a = b;
+b = 12.0;.

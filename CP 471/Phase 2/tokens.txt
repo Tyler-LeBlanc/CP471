@@ -38,6 +38,19 @@ Lexeme: , Type: DELIMITER
 Lexeme:+, Type: MATH_OPERATOR
 Lexeme: , Type: DELIMITER
 Lexeme:y, Type: IDENTIFIER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme:u, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:=, Type: ASSIGNMENT_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:0, Type: INTEGER
+Lexeme:;, Type: DELIMITER
 Lexeme:
 , Type: DELIMITER
 Lexeme: , Type: DELIMITER
@@ -70,6 +83,42 @@ Lexeme: , Type: DELIMITER
 Lexeme:=, Type: ASSIGNMENT_OPERATOR
 Lexeme: , Type: DELIMITER
 Lexeme:10, Type: INTEGER
+Lexeme: , Type: DELIMITER
+Lexeme:+, Type: MATH_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:1, Type: INTEGER
+Lexeme: , Type: DELIMITER
+Lexeme:+, Type: MATH_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:1.2, Type: DOUBLE
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:a, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:=, Type: ASSIGNMENT_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:a, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:*, Type: MATH_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:a, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:*, Type: MATH_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:a, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:*, Type: MATH_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:b, Type: IDENTIFIER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:a, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:=, Type: ASSIGNMENT_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:b, Type: IDENTIFIER
 Lexeme:;, Type: DELIMITER
 Lexeme:
 , Type: DELIMITER
@@ -77,52 +126,6 @@ Lexeme:b, Type: IDENTIFIER
 Lexeme: , Type: DELIMITER
 Lexeme:=, Type: ASSIGNMENT_OPERATOR
 Lexeme: , Type: DELIMITER
-Lexeme:1.2, Type: DOUBLE
+Lexeme:12.0, Type: DOUBLE
 Lexeme:;, Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
-Lexeme:def, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:int, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:func, Type: IDENTIFIER
-Lexeme:(, Type: DELIMITER
-Lexeme:int, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:o, Type: IDENTIFIER
-Lexeme:,, Type: DELIMITER
-Lexeme: , Type: DELIMITER
-Lexeme:int, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:p, Type: IDENTIFIER
-Lexeme:), Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
-Lexeme: , Type: DELIMITER
-Lexeme: , Type: DELIMITER
-Lexeme: , Type: DELIMITER
-Lexeme: , Type: DELIMITER
-Lexeme:int, Type: KEYWORD
-Lexeme: , Type: DELIMITER
-Lexeme:o, Type: IDENTIFIER
-Lexeme:,, Type: DELIMITER
-Lexeme: , Type: DELIMITER
-Lexeme:p, Type: IDENTIFIER
-Lexeme:;, Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
-Lexeme:fed, Type: KEYWORD
-Lexeme:
-, Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
-Lexeme:
-, Type: DELIMITER
-Lexeme:func, Type: IDENTIFIER
-Lexeme:(, Type: DELIMITER
-Lexeme:a, Type: IDENTIFIER
-Lexeme:,, Type: DELIMITER
-Lexeme:b, Type: IDENTIFIER
-Lexeme:), Type: DELIMITER
+Lexeme:., Type: DELIMITER
