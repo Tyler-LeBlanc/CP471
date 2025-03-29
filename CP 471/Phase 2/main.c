@@ -1389,16 +1389,20 @@ void GetTokensAndAddLocal(int *index, TOKEN_ARRAY *tk, char *funcName, int type,
         }
     }
 }
-int FindDec(int inFunction, char *funcName, int index, TOKEN_ARRAY *tk, GLOBAL_SCOPE *globalTable, LOCAL_SCOPE *localTable)
+int FindDec(int inFunction, char *funcName, int index, TOKEN_ARRAY *tk, GLOBAL_SCOPE *globalTable, LOCAL_SCOPE *localTable, char blockNames[][20], int insideBlock)
 {
     int searchResult = SearchGlobalTable(globalTable, tk->array[index].lexeme); // search global
     if (searchResult == -1 && inFunction == 1)
     {                                                                                   // If we didn't find the function and are in a function
         searchResult = SearchLocalTable(localTable, funcName, tk->array[index].lexeme); // check the local table
+        if (searchResult == -1 && insideBlock != -1)
+        {
+            searchResult = SearchLocalTable(localTable, blockNames[insideBlock], tk->array[index].lexeme);
+        }
     }
     return searchResult;
 }
-void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLOBAL_SCOPE *globalTable, LOCAL_SCOPE *localTable)
+void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLOBAL_SCOPE *globalTable, LOCAL_SCOPE *localTable, char blockNames[][20], int insideBlock)
 {
     int tempIndex = index;
     char *verifType = "";
@@ -1406,7 +1410,7 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
     if (strcmp(tk->array[tempIndex].type, "IDENTIFIER") == 0) // if we get an identifier;
     {
         // printf("Found Id %s", tk->array[tempIndex].lexeme);
-        int searchResult = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable);
+        int searchResult = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable, blockNames, insideBlock);
         if (searchResult != -1)
         {                          // if we found it in the table
             if (searchResult == 0) // search returns the type of the variable so we now know what type we need to ensure is the same.
@@ -1421,7 +1425,7 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
             }
             tempIndex = tempIndex + 1; // now that we have the type lets get the next token
             getNextToken(tk, &tempIndex);
-            if (strcmp(tk->array[tempIndex].lexeme, "=") == 0)
+            if (strcmp(tk->array[tempIndex].type, "ASSIGNMENT_OPERATOR") == 0 || strcmp(tk->array[tempIndex].type, "COMPARISON_OPERATOR") == 0)
             {                              // If we get an equal sign (setting var to some value)
                                            // printf(" found =\n");
                 tempIndex = tempIndex + 1; // now that we have the type lets get the next token
@@ -1432,8 +1436,8 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
                     if (strcmp(tk->array[tempIndex].type, "IDENTIFIER") == 0) // if we are setting this var to another var
                     {
                         // printf("var is being set equal to %d", tk->array[tempIndex].type);
-                        int searchResult = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable); // find the identifier
-                        if (searchResult != typeNum)                                                              // type mismatch
+                        int searchResult = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable, blockNames, insideBlock); // find the identifier
+                        if (searchResult != typeNum)                                                                                       // type mismatch
                         {
                             printf("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
                         }
@@ -1466,6 +1470,59 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
                     }
                 }
             }
+            else if (strcmp(tk->array[tempIndex].lexeme, "(") == 0) // if we have dec() then we're calling a function of some kind
+            {
+                tempIndex = tempIndex + 1;
+                getNextToken(tk, &tempIndex); // Let's get the next token (should be an identifier or number)
+                int paramCount = 0;
+                int countingParams = 0;
+                int location = 0;
+                for (int i = 0; i < globalTable->size; i++)
+                {                                                                        // iterate through, lets get the parameter count for this function
+                    if (strcmp(globalTable->decs[i].name, tk->array[index].lexeme) == 0) // if we find the function we're looking for inside the global table
+                    {
+                        paramCount = globalTable->decs[i].paramCount; // get the parameter count;
+                        location = i;
+                    }
+                }
+                while (strcmp(tk->array[tempIndex].lexeme, ")") != 0) // while inside function parameter setting thingy stuff
+                {
+                    int searchResult = -1;
+                    if (strcmp(tk->array[tempIndex].type, "IDENTIFIER") == 0)
+                    {                                                                                                                  // if it's an identifier
+                        searchResult = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable, blockNames, insideBlock); // find it in the table
+                    }
+                    else
+                    { // if it's not a variable but it is a number
+                        int checkType = -1;
+                        if (strcmp(tk->array[tempIndex].type, "INTEGER") == 0)
+                        {
+                            searchResult = 0;
+                        }
+                        else if (strcmp(tk->array[tempIndex].type, "DOUBLE") == 0)
+                        {
+                            searchResult = 1;
+                        }
+                    } // then manually check and set the search result
+
+                    if (searchResult != globalTable->decs[location].params[countingParams])
+                    { // if the type doesn't match
+                        printf("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
+                    }
+                    tempIndex = tempIndex + 1;
+                    getNextToken(tk, &tempIndex);
+                    while (strcmp(tk->array[tempIndex].lexeme, ",") == 0) // skip commas
+                    {
+                        tempIndex = tempIndex + 1;
+                        getNextToken(tk, &tempIndex);
+                    }
+                    countingParams = countingParams + 1;
+                }
+                if (countingParams != paramCount)
+                {
+                    printf("Invalid number of parameters for function %s expected %d found %d on line %d\n", tk->array[index].lexeme, paramCount, countingParams, lineCounter);
+                }
+            }
         }
     }
     else if (strcmp(tk->array[tempIndex].lexeme, "return") == 0)
@@ -1474,7 +1531,7 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
         getNextToken(tk, &tempIndex); // get next token
         if (strcmp(tk->array[tempIndex].type, "IDENTIFIER") == 0)
         { // if it's an identifier after return
-            int varType = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable);
+            int varType = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable, blockNames, insideBlock);
             int returnType;
             for (int fun = 0; fun < globalTable->size; fun++)
             {
@@ -1513,12 +1570,17 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
     int paramsCount = 0;
     int buildingFunction = 0; // used to see if we are constructing a function declaration for global
     int type;
+    int ifCount = 0;
+    int whileCount = 0;
+    int elseCount = 0;
     int returnType;
+    int insideBlock = -1;
+    char blockNames[100][20]; // Stores block names if0, while0, else0 etc etc.
     printf("Starting semantic analysis\n");
     while (index < tk->size) // while inside the array
     {
         getNextToken(tk, &index); // ensure the start of the array isnt nothing
-        AnalyzeType(insideFunction, index, funcName, tk, globalTable, localTable);
+        AnalyzeType(insideFunction, index, funcName, tk, globalTable, localTable, blockNames, insideBlock);
         TOKEN currentToken = tk->array[index]; // get first token
         // Start of adding functions to global table--
         if (strcmp(currentToken.lexeme, "def") == 0) // if found func dec
@@ -1539,13 +1601,14 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                     type = 1;
                     returnType = 1;
                 }
+                index = index + 1; // The next token, should be the function name {def int funcName(params)}
+                getNextToken(tk, &index);
+                if (strcmp(tk->array[index].type, "IDENTIFIER") == 0)
+                {
+                    funcName = tk->array[index].lexeme;
+                }
             }
-            index = index + 1; // The next token, should be the function name {def int funcName(params)}
-            getNextToken(tk, &index);
-            if (strcmp(tk->array[index].type, "IDENTIFIER") == 0)
-            {
-                funcName = tk->array[index].lexeme;
-            }
+
             // printf("Inside a function with function name: %s\n", funcName);
         }
         else if (strcmp(currentToken.lexeme, "fed") == 0)
@@ -1553,6 +1616,38 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
             insideFunction = 0; // function declaration over, no longer inside a function
             inParams = 0;       // reset parameters
             // printf("Left the function %s", funcName);
+        }
+        else if (strcmp(currentToken.lexeme, "if") == 0 || strcmp(currentToken.lexeme, "while") == 0 || strcmp(currentToken.lexeme, "else") == 0)
+        {
+            if (strcmp(currentToken.lexeme, "else") != 0)
+            { // not an else than increment this counter
+                insideBlock = insideBlock + 1;
+            }
+            // printf("******Found an if while or else\n");
+            if (strcmp(currentToken.lexeme, "if") == 0)
+            {
+                snprintf(blockNames[insideBlock], sizeof(blockNames[insideBlock]), "if%d\0", ifCount);
+                ifCount = ifCount + 1;
+            }
+            else if (strcmp(currentToken.lexeme, "while") == 0)
+            {
+                snprintf(blockNames[insideBlock], sizeof(blockNames[insideBlock]), "while%d\0", whileCount);
+                // printf("Found a while and named it %s\n", blockNames[insideBlock]);
+                whileCount = whileCount + 1;
+            }
+            else
+            {
+                printf("Was named %s", blockNames[insideBlock]);
+                snprintf(blockNames[insideBlock], sizeof(blockNames[insideBlock]), "else%d\0", elseCount);
+                printf("Found a else and named it %s\n", blockNames[insideBlock]);
+                elseCount = elseCount + 1;
+            }
+            printf("Keyword Name %s at index %d\n", blockNames[insideBlock], insideBlock);
+            // addLocalVariable(blockNames[insideBlock], "None", 0, localTable);
+        }
+        else if (strcmp(currentToken.lexeme, "fi") == 0 || strcmp(currentToken.lexeme, "od") == 0)
+        {
+            insideBlock = insideBlock - 1;
         }
         if (insideFunction == 1 && strcmp(tk->array[index].lexeme, "(") == 0 && inParams == 0) // If we're in some function and we're seeing a open bracket for the first time.
         {                                                                                      // Then this is the parameter declaration
@@ -1603,7 +1698,7 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                 printf("Semantic error On line %d declaration %s has already been defined\n", lineCounter, funcName);
             }
         }
-        else if (insideFunction == 0)
+        else if (insideFunction == 0 && insideBlock == -1)
         {              // Not inside of a function dec, aka if we're in global scope
             type = -1; // set to null essentially
             char *varName = "";
@@ -1620,6 +1715,24 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
             if (type >= 0)
             { // if we found a declaration of some identifier
                 GetTokensAndAddGlobal(&index, tk, type, insideFunction, paramsCount, params, globalTable);
+            }
+        }
+        else if (insideBlock != -1) // if we are inside a block of some kind if else or while
+        {
+            type = -1;
+            if (strcmp(tk->array[index].lexeme, "int") == 0) // if the definition of some variable
+            {
+                type = 0;
+            }
+            else if (strcmp(tk->array[index].lexeme, "double") == 0) // if it's a double instead of an int
+            {
+                type = 1;
+            }
+            if (type >= 0)
+            {
+                // printf("adding %s to local table Index: %d", blockNames[insideBlock], index);
+                GetTokensAndAddLocal(&index, tk, blockNames[insideBlock], type, localTable);
+                // printf("changed index %d\n", index);
             }
         }
         //--End of adding values to global table
@@ -1650,7 +1763,7 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
             searchResult = SearchGlobalTable(globalTable, tk->array[index].lexeme); // is this variable defined? It should be
             if (searchResult != -1)
             {
-                // printf("Found %s in global table\n", tk->array[index].lexeme);
+                printf("Found %s in global table\n", tk->array[index].lexeme);
             }
             else // Maybe a semantic error, but if we are inside a function we need to check the local table
             {
@@ -1659,10 +1772,23 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                 {
                     // printf("inside a function checking the %s table for %s\n", funcName, tk->array[index].lexeme);
                     searchResult = SearchLocalTable(localTable, funcName, tk->array[index].lexeme);
+                    if (insideBlock != -1 && searchResult == -1) // if we are in a block and the variable doesn't exist in this function
+                    {
+                        searchResult = SearchLocalTable(localTable, blockNames[insideBlock], tk->array[index].lexeme);
+                    }
                     // if (searchResult == 1)
                     // {
                     //     printf("Found local variable %s\n", tk->array[index].lexeme);
                     // }
+                    if (searchResult == -1)
+                    {
+
+                        printf("Semantic error %s does not exist at this scope %s on line %d\n", tk->array[index].lexeme, funcName, lineCounter);
+                    }
+                }
+                else if (insideBlock != -1) // if we are inside a block but not inside a function check local table for the block name
+                {
+                    searchResult = SearchLocalTable(localTable, blockNames[insideBlock], tk->array[index].lexeme);
                     if (searchResult == -1)
                     {
 
@@ -1707,7 +1833,7 @@ int main()
     // printTokenArray(tk);
     printf("Syntax Analysis\n------------------------------------------------------- \n");
     // printf("End of token stream: %s", tk->array[tk->size].lexeme);
-    SyntaxAnalysis(tk, stack);
+    // SyntaxAnalysis(tk, stack);
     printf("Semantic Analysis\n------------------------------------------------------- \n");
     SemanticAnalysis(tk);
 }

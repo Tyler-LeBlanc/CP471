@@ -1,12 +1,6 @@
-def int func(int x, double y)
-    int z;
-    z = x + y;
-    u = 0;
-    return z;
-fed
-int a;
-double b;
-a = 10 + 1 + 1.2;
-a = a * a * a * b;
-a = b;
-b = 12.0;.
+def int 
+gcd(int a, double b) 
+if (a==b) then return (a) 
+fi; if (a>b) then 
+return(gcd(a-b,b)) else return(gcd(a,b-a)) fi; fed; print gcd(21,15); 
+print 45; print 2*(gcd(21, 28) + 6).

@@ -1,2 +1,0 @@
-Syntax Error: expected token '24' but found 'int' Current Terminal '2', TOKEN INDEX: '62'
-Syntax Error: expected token '24' but found 'a' Current Terminal '35', TOKEN INDEX: '64'
