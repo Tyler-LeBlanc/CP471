@@ -1407,10 +1407,28 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
     int tempIndex = index;
     char *verifType = "";
     int typeNum = -1;
-    if (strcmp(tk->array[tempIndex].type, "IDENTIFIER") == 0) // if we get an identifier;
+    int isReturn = 0; // 0 = false 1 = true
+
+    if (strcmp(tk->array[tempIndex].type, "IDENTIFIER") == 0 || strcmp(tk->array[tempIndex].lexeme, "return") == 0) // if we get an identifier;
     {
         // printf("Found Id %s", tk->array[tempIndex].lexeme);
-        int searchResult = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable, blockNames, insideBlock);
+        int searchResult;
+        if (strcmp(tk->array[tempIndex].lexeme, "return") != 0)
+        {
+            searchResult = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable, blockNames, insideBlock);
+        }
+        else // this is the word return, check the global table for the func return type
+        {
+            isReturn = 1;
+            for (int fun = 0; fun < globalTable->size; fun++)
+            {
+                if (strcmp(globalTable->decs[fun].name, funcName) == 0)
+                { // find the function in the global and check the return type
+                    searchResult = globalTable->decs[fun].returnType;
+                    break; // end loop
+                }
+            }
+        }
         if (searchResult != -1)
         {                          // if we found it in the table
             if (searchResult == 0) // search returns the type of the variable so we now know what type we need to ensure is the same.
@@ -1425,7 +1443,7 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
             }
             tempIndex = tempIndex + 1; // now that we have the type lets get the next token
             getNextToken(tk, &tempIndex);
-            if (strcmp(tk->array[tempIndex].type, "ASSIGNMENT_OPERATOR") == 0 || strcmp(tk->array[tempIndex].type, "COMPARISON_OPERATOR") == 0)
+            if (strcmp(tk->array[tempIndex].type, "ASSIGNMENT_OPERATOR") == 0 || strcmp(tk->array[tempIndex].type, "COMPARISON_OPERATOR") == 0 || strcmp(tk->array[tempIndex].type, "MATH_OPERATOR") == 0)
             {                              // If we get an equal sign (setting var to some value)
                                            // printf(" found =\n");
                 tempIndex = tempIndex + 1; // now that we have the type lets get the next token
@@ -1470,80 +1488,98 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
                     }
                 }
             }
-            else if (strcmp(tk->array[tempIndex].lexeme, "(") == 0) // if we have dec() then we're calling a function of some kind
+            else if (strcmp(tk->array[tempIndex].lexeme, "(") == 0) // if we have func() then we're calling a function of some kind or a function call
             {
                 tempIndex = tempIndex + 1;
                 getNextToken(tk, &tempIndex); // Let's get the next token (should be an identifier or number)
-                int paramCount = 0;
-                int countingParams = 0;
+                int paramCount = -1;
+                int returnVal = -1;
+                int commaCounter = 0;
+                int countingParams = 1;
                 int location = 0;
-                for (int i = 0; i < globalTable->size; i++)
+                for (int i = 0; i < globalTable->size; i++)                              // get param count
                 {                                                                        // iterate through, lets get the parameter count for this function
                     if (strcmp(globalTable->decs[i].name, tk->array[index].lexeme) == 0) // if we find the function we're looking for inside the global table
                     {
                         paramCount = globalTable->decs[i].paramCount; // get the parameter count;
                         location = i;
+                        returnVal = globalTable->decs[i].returnType;
+                        // printf("Found function in global has parameter count %d", paramCount);
+                    }
+                }
+                if (returnVal == -1)
+                {
+                    for (int i = 0; i < globalTable->size; i++) // get param count
+                    {
+                        if (strcmp(globalTable->decs[i].name, funcName) == 0) // if we find the function we're looking for inside the global table
+                        {
+                            paramCount = globalTable->decs[i].paramCount; // get the parameter count;
+                            location = i;
+                            // printf("Found function in global has parameter count %d", paramCount);
+                        }
                     }
                 }
                 while (strcmp(tk->array[tempIndex].lexeme, ")") != 0) // while inside function parameter setting thingy stuff
                 {
                     int searchResult = -1;
+                    while (strcmp(tk->array[tempIndex].type, "MATH_OPERATOR") == 0)
+                    { // skip math operators
+                        tempIndex = tempIndex + 1;
+                        getNextToken(tk, &tempIndex);
+                    }
                     if (strcmp(tk->array[tempIndex].type, "IDENTIFIER") == 0)
                     {                                                                                                                  // if it's an identifier
                         searchResult = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable, blockNames, insideBlock); // find it in the table
                     }
-                    else
-                    { // if it's not a variable but it is a number
+                    else if (strcmp(tk->array[tempIndex].type, "INTEGER") == 0 || strcmp(tk->array[tempIndex].type, "DOUBLE") == 0) // ok it's not an identifier, is it a number?
+                    {
                         int checkType = -1;
                         if (strcmp(tk->array[tempIndex].type, "INTEGER") == 0)
                         {
                             searchResult = 0;
                         }
-                        else if (strcmp(tk->array[tempIndex].type, "DOUBLE") == 0)
+                        else
                         {
                             searchResult = 1;
                         }
                     } // then manually check and set the search result
-
-                    if (searchResult != globalTable->decs[location].params[countingParams])
+                    if (returnVal != -1 && searchResult != globalTable->decs[location].params[countingParams - 1])
                     { // if the type doesn't match
                         printf("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
                     }
+                    else if (returnVal == -1 && searchResult != globalTable->decs[location].returnType)
+                    {
+                        printf("Return Type mismatch with %s and %s on line %d\n", funcName, tk->array[tempIndex].lexeme, lineCounter);
+                    }
+
                     tempIndex = tempIndex + 1;
                     getNextToken(tk, &tempIndex);
                     while (strcmp(tk->array[tempIndex].lexeme, ",") == 0) // skip commas
                     {
+                        commaCounter = commaCounter + 1; // inc comma counter
                         tempIndex = tempIndex + 1;
                         getNextToken(tk, &tempIndex);
                     }
-                    countingParams = countingParams + 1;
+                    if (countingParams == commaCounter)
+                    {
+                        countingParams = countingParams + 1;
+                    }
+                    if (strcmp(tk->array[tempIndex].lexeme, "(") == 0) // if I find a open bracket inside this bracket statement ex return(gcd**()**) I want to skip the second pair of brackets, this code will already check it
+                    {
+                        while (strcmp(tk->array[tempIndex].lexeme, ")") != 0)
+                        {
+                            //   printf("Skipping due to brackets: %s\n", tk->array[tempIndex].lexeme);
+                            tempIndex = tempIndex + 1;
+                            getNextToken(tk, &tempIndex);
+                        }
+                        tempIndex = tempIndex + 1;
+                        getNextToken(tk, &tempIndex);
+                    }
                 }
-                if (countingParams != paramCount)
+                if (countingParams != paramCount && returnVal != -1) // param count is negative one if I am searching for a function name (like return) and it doesn't exist
                 {
                     printf("Invalid number of parameters for function %s expected %d found %d on line %d\n", tk->array[index].lexeme, paramCount, countingParams, lineCounter);
                 }
-            }
-        }
-    }
-    else if (strcmp(tk->array[tempIndex].lexeme, "return") == 0)
-    { // check for return statement
-        tempIndex = tempIndex + 1;
-        getNextToken(tk, &tempIndex); // get next token
-        if (strcmp(tk->array[tempIndex].type, "IDENTIFIER") == 0)
-        { // if it's an identifier after return
-            int varType = FindDec(inFunction, funcName, tempIndex, tk, globalTable, localTable, blockNames, insideBlock);
-            int returnType;
-            for (int fun = 0; fun < globalTable->size; fun++)
-            {
-                if (strcmp(globalTable->decs[fun].name, funcName) == 0)
-                { // find the function in the global and check the return type
-                    returnType = globalTable->decs[fun].returnType;
-                    break; // end loop
-                }
-            }
-            if (returnType != varType)
-            {
-                printf("Type mismatch in %s function return %s line %d\n", funcName, tk->array[index].lexeme, lineCounter);
             }
         }
     }
@@ -1637,12 +1673,12 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
             }
             else
             {
-                printf("Was named %s", blockNames[insideBlock]);
+                // printf("Was named %s", blockNames[insideBlock]);
                 snprintf(blockNames[insideBlock], sizeof(blockNames[insideBlock]), "else%d\0", elseCount);
-                printf("Found a else and named it %s\n", blockNames[insideBlock]);
+                // printf("Found a else and named it %s\n", blockNames[insideBlock]);
                 elseCount = elseCount + 1;
             }
-            printf("Keyword Name %s at index %d\n", blockNames[insideBlock], insideBlock);
+            // printf("Keyword Name %s at index %d\n", blockNames[insideBlock], insideBlock);
             // addLocalVariable(blockNames[insideBlock], "None", 0, localTable);
         }
         else if (strcmp(currentToken.lexeme, "fi") == 0 || strcmp(currentToken.lexeme, "od") == 0)
@@ -1682,6 +1718,7 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                     addLocalVariable(funcName, tk->array[index].lexeme, params[paramsCount], localTable); // Add parameters to the local table for the appropriate function
                     // printf("Found Parameter: %s with type: %s\n", tk->array[index].lexeme, lastType);
                     paramsCount = paramsCount + 1; // increment count;
+                    lastType = "";                 // consume the identifier?
                 }
                 index = index + 1;
             }
@@ -1763,7 +1800,7 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
             searchResult = SearchGlobalTable(globalTable, tk->array[index].lexeme); // is this variable defined? It should be
             if (searchResult != -1)
             {
-                printf("Found %s in global table\n", tk->array[index].lexeme);
+                // printf("Found %s in global table\n", tk->array[index].lexeme);
             }
             else // Maybe a semantic error, but if we are inside a function we need to check the local table
             {
