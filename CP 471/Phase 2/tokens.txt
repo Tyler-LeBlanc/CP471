@@ -1,6 +1,6 @@
 Lexeme:def, Type: KEYWORD
 Lexeme: , Type: DELIMITER
-Lexeme:double, Type: KEYWORD
+Lexeme:int, Type: KEYWORD
 Lexeme: , Type: DELIMITER
 Lexeme:func, Type: IDENTIFIER
 Lexeme:(, Type: DELIMITER
@@ -93,6 +93,16 @@ Lexeme: , Type: DELIMITER
 Lexeme: , Type: DELIMITER
 Lexeme: , Type: DELIMITER
 Lexeme: , Type: DELIMITER
+Lexeme:double, Type: KEYWORD
+Lexeme: , Type: DELIMITER
+Lexeme:test, Type: IDENTIFIER
+Lexeme:;, Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
+Lexeme: , Type: DELIMITER
 Lexeme:return, Type: KEYWORD
 Lexeme:(, Type: DELIMITER
 Lexeme:x, Type: IDENTIFIER
@@ -105,3 +115,14 @@ Lexeme:;, Type: DELIMITER
 Lexeme:
 , Type: DELIMITER
 Lexeme:fed, Type: KEYWORD
+Lexeme:., Type: DELIMITER
+Lexeme:
+, Type: DELIMITER
+Lexeme:test, Type: IDENTIFIER
+Lexeme: , Type: DELIMITER
+Lexeme:=, Type: ASSIGNMENT_OPERATOR
+Lexeme: , Type: DELIMITER
+Lexeme:func, Type: IDENTIFIER
+Lexeme:(, Type: DELIMITER
+Lexeme:10.1, Type: DOUBLE
+Lexeme:), Type: DELIMITER

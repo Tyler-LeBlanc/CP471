@@ -1,0 +1,16 @@
+Return Type mismatch with func and 10.2 on line 5
+
+Type mismatch with x and 10.2 on line 5
+
+Type mismatch with a and 10.2 on line 5
+
+Return Type mismatch with newFunc and x on line 9
+
+Return Type mismatch with newFunc and 10.3 on line 9
+
+Semantic error test does not exist at this scope on line 11
+
+Type mismatch with func and 10.1 on line 11
+
+Invalid number of parameters for function func expected 2 found 1 on line 11
+

@@ -4,6 +4,7 @@
 #include "LexicalAnalysis.h"
 #include "SyntaxAnalysis.h"
 #include <ctype.h>
+#include <stdarg.h>
 
 /*
  *
@@ -1402,6 +1403,21 @@ int FindDec(int inFunction, char *funcName, int index, TOKEN_ARRAY *tk, GLOBAL_S
     }
     return searchResult;
 }
+void logSemanticError(const char *format, ...)
+{
+    va_list args;
+    va_start(args, format); // get arguments from the passed string
+    vprintf(format, args);  // print to the console here
+    printf("\n");
+    FILE *errorFile = fopen("errors.txt", "a");
+    if (errorFile != NULL)
+    {
+        vfprintf(errorFile, format, args);
+        fprintf(errorFile, "\n");
+    }
+    va_end(args);
+    fclose(errorFile);
+}
 void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLOBAL_SCOPE *globalTable, LOCAL_SCOPE *localTable, char blockNames[][20], int insideBlock)
 {
     int tempIndex = index;
@@ -1464,14 +1480,16 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
                     {
                         if (typeNum != 0)
                         {
-                            printf("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
+                            logSemanticError("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
+                            // printf("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
                         }
                     }
                     else if (strcmp(tk->array[tempIndex].type, "DOUBLE") == 0)
                     {
                         if (typeNum != 1)
                         {
-                            printf("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
+                            logSemanticError("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
+                            // printf("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
                         }
                     }
                     tempIndex = tempIndex + 1;
@@ -1545,11 +1563,13 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
                     } // then manually check and set the search result
                     if (returnVal != -1 && searchResult != globalTable->decs[location].params[countingParams - 1])
                     { // if the type doesn't match
-                        printf("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
+                        logSemanticError("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
+                        // printf("Type mismatch with %s and %s on line %d\n", tk->array[index].lexeme, tk->array[tempIndex].lexeme, lineCounter);
                     }
                     else if (returnVal == -1 && searchResult != globalTable->decs[location].returnType)
                     {
-                        printf("Return Type mismatch with %s and %s on line %d\n", funcName, tk->array[tempIndex].lexeme, lineCounter);
+                        logSemanticError("Return Type mismatch with %s and %s on line %d\n", funcName, tk->array[tempIndex].lexeme, lineCounter);
+                        // printf("Return Type mismatch with %s and %s on line %d\n", funcName, tk->array[tempIndex].lexeme, lineCounter);
                     }
 
                     tempIndex = tempIndex + 1;
@@ -1578,7 +1598,8 @@ void AnalyzeType(int inFunction, int index, char *funcName, TOKEN_ARRAY *tk, GLO
                 }
                 if (countingParams != paramCount && returnVal != -1) // param count is negative one if I am searching for a function name (like return) and it doesn't exist
                 {
-                    printf("Invalid number of parameters for function %s expected %d found %d on line %d\n", tk->array[index].lexeme, paramCount, countingParams, lineCounter);
+                    logSemanticError("Invalid number of parameters for function %s expected %d found %d on line %d\n", tk->array[index].lexeme, paramCount, countingParams, lineCounter);
+                    // printf("Invalid number of parameters for function %s expected %d found %d on line %d\n", tk->array[index].lexeme, paramCount, countingParams, lineCounter);
                 }
             }
         }
@@ -1732,7 +1753,8 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
             }
             else
             {
-                printf("Semantic error On line %d declaration %s has already been defined\n", lineCounter, funcName);
+                logSemanticError("Semantic error On line %d declaration %s has already been defined\n", lineCounter, funcName);
+                // printf("Semantic error On line %d declaration %s has already been defined\n", lineCounter, funcName);
             }
         }
         else if (insideFunction == 0 && insideBlock == -1)
@@ -1819,8 +1841,8 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                     // }
                     if (searchResult == -1)
                     {
-
-                        printf("Semantic error %s does not exist at this scope %s on line %d\n", tk->array[index].lexeme, funcName, lineCounter);
+                        logSemanticError("Semantic error %s does not exist at this scope %s on line %d\n", tk->array[index].lexeme, funcName, lineCounter);
+                        // printf("Semantic error %s does not exist at this scope %s on line %d\n", tk->array[index].lexeme, funcName, lineCounter);
                     }
                 }
                 else if (insideBlock != -1) // if we are inside a block but not inside a function check local table for the block name
@@ -1828,13 +1850,14 @@ void SemanticAnalysis(TOKEN_ARRAY *tk)
                     searchResult = SearchLocalTable(localTable, blockNames[insideBlock], tk->array[index].lexeme);
                     if (searchResult == -1)
                     {
-
-                        printf("Semantic error %s does not exist at this scope %s on line %d\n", tk->array[index].lexeme, funcName, lineCounter);
+                        logSemanticError("Semantic error %s does not exist at this scope %s on line %d\n", tk->array[index].lexeme, funcName, lineCounter);
+                        // printf("Semantic error %s does not exist at this scope %s on line %d\n", tk->array[index].lexeme, funcName, lineCounter);
                     }
                 }
                 else
                 {
-                    printf("Semantic error %s does not exist at this scope on line %d\n", tk->array[index].lexeme, lineCounter);
+                    logSemanticError("Semantic error %s does not exist at this scope on line %d\n", tk->array[index].lexeme, lineCounter);
+                    // printf("Semantic error %s does not exist at this scope on line %d\n", tk->array[index].lexeme, lineCounter);
                 }
             }
         }
@@ -1870,7 +1893,7 @@ int main()
     // printTokenArray(tk);
     printf("Syntax Analysis\n------------------------------------------------------- \n");
     // printf("End of token stream: %s", tk->array[tk->size].lexeme);
-    // SyntaxAnalysis(tk, stack);
+    // SyntaxAnalysis(tk, stack); PHASE 2 IS NOT RUNNING, it can cause issues and is scary so I turned it off.
     printf("Semantic Analysis\n------------------------------------------------------- \n");
     SemanticAnalysis(tk);
 }
